@@ -7,6 +7,7 @@ export class IDB {
 * @typedef StoreDefinition {name: string, index: {keyPath?: string, autoIncrement?: boolean}}
 * @param options?: IDBOptions Options for IDB object
 * @typedef IDBOptions {hideLogs?: boolean}, Hide technical logs about database lifecycle events
+* @return IDB
 */
   constructor(name, version, objectStores, options) {
     const response = this._argsCheck({
@@ -146,17 +147,22 @@ export class IDB {
 * @param store: string Name of database store
 * @param item: any Serializable object that IDB can store
 * @example {title: 'Book', author: 'Bob', data: new ArrayBuffer(32), pages: 12}
+* @return boolean
 */
   async setItem(store, item) {
     const resp = await this._dbCall('setItem', {
       store: { value: store }, item: { value: item, required: true, type: 'object' }
-    }, 'readwrite', 'put', item, async () => await this._onDataUpdateCall(store, item));
+    }, 'readwrite', 'put', item, async () => {
+      await this._onDataUpdateCall(store, item);
+      return true; // TODO: If QuotaExceedError happened, catch it and return false;
+    });
     return resp;
   }
 /**
 * @name getItem Receive item from store by default store key
 * @param store: string Name of database store
 * @param itemKey: any Key value to access item in store
+* @return any | void
 */
   async getItem(store, itemKey) {
     const resp = await this._dbCall('getItem', {
@@ -169,6 +175,7 @@ export class IDB {
 * @param store: string Name of database store
 * @param updateCallback: UpdateCallback Async function that receives item and can directly modify them
 * @function UpdateCallback(item: any) No returned value needed
+* @return any | void
 */
   async updateItem(store, itemKey, updateCallback) {
     if (!this._dataOperationsArgsCheck('updateItem', {
@@ -185,6 +192,7 @@ export class IDB {
 * @param store: string Name of database store
 * @param onData: DataReceivingCallback(item, index) Sync function that calls every time when next item is received
 * @function DataReceivingCallback(item: any, index: number) Index is items position in store
+* @return any[]
 */
   async getAll(store, onData) {
     const items = [];
@@ -205,6 +213,7 @@ export class IDB {
 * @name deleteItem Delete item from store by store default key
 * @param store: string Name of database store
 * @param itemKey: any Key value to access item in store
+* @return void
 */
   async deleteItem(store, itemKey) {
     const resp = await this._dbCall('deleteItem', {
@@ -215,6 +224,7 @@ export class IDB {
 /**
 * @name deleteAll Delete all items from the store
 * @param store: string Name of database store
+* @return void
 */
   async deleteAll(store) {
     const resp = await this._dbCall('deleteAll', {
@@ -226,6 +236,7 @@ export class IDB {
 * @name hasItem Check for item with key exist or count how much items are in the store
 * @param store: string Name of database store
 * @param itemKey: any Key value to access item in store, if no key - return items amount in the store
+* @return boolean | number
 */
   async hasItem(store, itemKey) {
     const resp = await this._dbCall('hasItem', {
@@ -237,17 +248,18 @@ export class IDB {
 * @name onDataUpdate Set a listener to the store that calls every time some changes in the store happened
 * @param store: string Name of database store
 * @param callback: DataUpdatedCallback Async function that calls every time when some item in the store modified
-* @function DataUpdatedCallback(store: string, item: any) Item is presented only if some item was added or updated
+* @function DataUpdatedCallback(store: string, item?: any) Item is presented only if some item was added or updated
+* @return boolean
 */
   async onDataUpdate(store, callback) {
     if (!this._dataOperationsArgsCheck('updateItem', {
       store: { value: store }, callback: { value: callback, required: true, type: 'function' }
-    })) return;
+    })) return false;
     const isReady = await this._isDbReady();
-    if (!isReady) return;
-    if (!this._checkStore('onDataUpdate', store)) return;
+    if (!isReady) return false;
+    if (!this._checkStore('onDataUpdate', store)) return false;
     if (!(store in this._listeners)) this._listeners[store] = [];
     this._listeners[store].push(callback);
-    return this;
+    return true;
   }
 };

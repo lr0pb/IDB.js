@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "author": "lr0pb",
   "scripts": {
-    "prebuild": "set PRODUCTION=1",
     "build": "rollup -c",
     "dev": "rollup -c rollup.config.dev.js -w"
   },

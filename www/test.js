@@ -14,7 +14,8 @@ window.db = new IDB('database', 1, [
 window.runTests = async function runTests() {
   console.log(`error about not all args passed in constructor:`);
   new IDB('errorBase', 1);
-  await db.setItem('one', { prop: 'num1' });
+  const setResp = await db.setItem('one', { prop: 'num1' });
+  console.log(`response from setItem: ${setResp}`);
   await db.setItem('two', { prop: 'num2', id: 'id123' });
   await db.setItem('two', { prop: 'num3', id: 'id234' });
   await db.setItem('three', { prop: 'num4', id: 'id345' });
