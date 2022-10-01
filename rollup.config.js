@@ -1,8 +1,9 @@
-import { terser } from 'rollup-plugin-terser'
+import typescript from '@rollup/plugin-typescript';
+import { terser } from 'rollup-plugin-terser';
 const fs = require('fs');
 
 export default {
-  input: 'IDB.js',
+  input: 'src/IDB.ts',
   output: [{
     file: 'out/IDB.worker.js',
     format: 'iife',
@@ -12,21 +13,22 @@ export default {
     format: 'es'
   }],
   plugins: [
-    {
+    /*{
       name: 'readme-api-generator',
       buildStart: () => generateAPI()
-    },
+    },*/
+    typescript(),
     terser({ keep_classnames: true, compress: { ecma: 2019 } }),
   ]
 };
 
 function generateAPI() {
   let readme = fs.readFileSync('./README.md', 'utf8');
-  const js = fs.readFileSync('./IDB.js', 'utf8');
+  const js = fs.readFileSync('./js/IDB.saved.js', 'utf8');
   readme = readme.replace(
     /(?<=# API\s)[\w\s(){}\[\]?:<>|\-,.'"`*#]+$/, `\n[tableOfContents]`
   );
-  const fields = js.match(/(?<=@)[\w\s():;"'|\-,?{}\[\]]+(?=\s\*)/g);
+  const fields = js.match(/(?<=@)[\w\s():;"'`|\-,?{}\[\]]+(?=\s\*)/g);
   const { n, e, t, f, p, r } = {
     n: 'name', e: 'example', t: 'typedef', f: 'function', p: 'param', r: 'return'
   };
@@ -34,17 +36,19 @@ function generateAPI() {
   fields.map((field) => {
     const type = field.match(/^[\w]+/)[0];
     const firstWord = new RegExp(/^[\w]+\s/);
-    let desc = type === e ? field.replace(firstWord, '') : field.match(/(?<=\s)[\w\s,-]+$/);
+    let desc = type === e ? field.replace(firstWord, '') :
+    type === p ? field.match(/(?<=}\s[\w?]+\s)[\w\s,-`]*/) : field.match(/(?<=\s)[\w\s,-]+$/);
     if (desc && typeof desc === 'object') desc = desc[0];
+    const name = type === p ? new RegExp(/(?<=}\s)[\w]+/) : new RegExp(/(?<=\s)[\w]+/);
     return {
       type,
-      value: type === e ? null : field.match(/(?<=\s)[\w]+/)[0],
-      optional: [n, e, t, f, r].includes(type) ? null : field.includes('?:'),
+      value: type === e ? null : field.match(name)[0],
+      optional: type === p ? field.includes('?') : null,
       dataType: [n, e, t, f].includes(type) ? null : (
-        type === r ? field.replace(firstWord, '').replace(/\s$/, '') : field.match(/(?<=\:\s)[\w\[\]]+/)[0]
+        type === r ? field.replace(firstWord, '').replace(/\s$/, '') : field.match(/(?<={)[\w\[\]]+(?=})/)[0]
       ),
-      args: [t, f].includes(type) ? field.match(/[(|{][\w\s{}?:,]+[)|}]/)[0] : null,
-      description: [n, p].includes(type) ? desc.replace(firstWord, '') : desc,
+      args: [t, f].includes(type) ? field.match(/[(|{][\w\s{}|'?:,]*[)|}]/)[0] : null,
+      description: type === n ? desc.replace(firstWord, '') : desc,
     };
   }).forEach((field, i, arr) => {
     const args = [readme, field, i, arr];

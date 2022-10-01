@@ -1,6 +1,6 @@
 {
-  "name": "IDB.js",
-  "version": "1.0.0",
+  "name": "idb.js",
+  "version": "2.0.0",
   "description": "IDB.js is a lightweight high-level promise-based wrapper for fast access to IndexedDB API",
   "author": "lr0pb",
   "license": "MIT",
@@ -9,12 +9,17 @@
     "url": "git://github.com/lr0pb/IDB.js.git"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c && npx typedoc",
     "dev": "rollup -c rollup.config.dev.js -w"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^8.5.0",
     "rollup": "^2.79.0",
+    "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-serve": "^2.0.1",
-    "rollup-plugin-terser": "^7.0.2"
+    "rollup-plugin-terser": "^7.0.2",
+    "tslib": "^2.4.0",
+    "typedoc": "^0.23.15",
+    "typescript": "^4.8.3"
   }
 }

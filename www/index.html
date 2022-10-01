@@ -1,24 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📦 IDB.js Test suite</title>
-  <script defer src="/test.js" type="module"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      place-content: center;
-      place-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-  </style>
-</head>
-<body>
-  <h2>📦 Open console</h2>
-  <button onclick="runTests()">🏗️ Run tests</button>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Mocha Tests</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/mocha/mocha.css" />
+  </head>
+  <body>
+    <div id="mocha"></div>
+
+    <script type="module" src="./mocha.test.js"></script>
+  </body>
 </html>
