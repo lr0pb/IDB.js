@@ -1,4 +1,7 @@
 {
-  "entryPoints": ["./src/IDB.ts"],
-  "out": "docs"
+  "entryPoints": ["./src/IDB.ts", "./src/IDB.types.d.ts"],
+  "out": "docs",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeExternals": true
 }

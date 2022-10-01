@@ -141,7 +141,7 @@ View all changes during versions in [CHANGELOG](https://github.com/lr0pb/IDB.js/
 # License
 IDB.js distributed under the [MIT](https://github.com/lr0pb/IDB.js/tree/main/LICENSE) license
 # API
-View whole API documentation [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB)
+View whole API documentation [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB.IDB)
 # Develop
 Clone this repo on your machine and run `npm i` in a root
 

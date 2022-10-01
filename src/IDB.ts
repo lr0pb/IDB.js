@@ -1,15 +1,15 @@
 import {
-  IDBListeners, IDBOptions, IDBMode, IDBAction, StoreDefinition,
+  IDBListeners, IDBOptions, IDBAction, StoreDefinition,
   StoreContainment, UpdateCallback, DataReceivingCallback,
   DataUpdatedType, DataUpdatedCallback, UnregisterListener
-} from './IDB.d.js'
+} from './IDB.types.d.js'
 
 export class IDB {
   private readonly _listeners: IDBListeners;
   private readonly _idb: IDBRequest;
   private _closedDueToVersionChange?: boolean;
   /**
-   * @param db Access to raw idb object. Use this for close database via close() call on db
+   * Access to raw idb object. Use this for close database via yourDbVariable.db.close()
    */
   db!: IDBDatabase;
   private readonly _options: IDBOptions;
@@ -85,7 +85,7 @@ export class IDB {
   private async _dbCall(
     name: string,
     store: string,
-    mode: IDBMode,
+    mode: IDBTransactionMode,
     action: IDBAction,
     actionArgument?: any,
     onSuccess?: Function
@@ -138,7 +138,7 @@ export class IDB {
     const resp: boolean[] | void = await this._dbCall(
       'setItem', store, 'readwrite', 'put', items,
       async (item: Type) => {
-        await this._onDataUpdateCall(store, 'setItem', item);
+        await this._onDataUpdateCall(store, 'set', item);
         return true; // TODO: If QuotaExceedError happened, catch it and return false;
       }
     );
@@ -230,7 +230,7 @@ export class IDB {
   public async delete<Key>(store: string, itemKeys: Key | Key[]): Promise<void> {
     await this._dbCall(
       'deleteItem', store, 'readwrite', 'delete', itemKeys,
-      async () => { await this._onDataUpdateCall(store, 'deleteItem'); }
+      async () => { await this._onDataUpdateCall(store, 'delete'); }
     );
   }
 /**

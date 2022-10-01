@@ -9,7 +9,7 @@
 
 All new methods support `second argument` to be an `array of items/item keys` to manipulate with mulptiple items inside one transaction
 
-All `API` docs now generated from source code by [`TypeDoc`](https://typedoc.org) and live on [GitHub Pages](https://lr0pb.github.io/IDB.js/classes/IDB)
+All `API` docs now generated from source code by [`TypeDoc`](https://typedoc.org) and live on [GitHub Pages](https://lr0pb.github.io/IDB.js/classes/IDB.IDB)
 
 Add tests for most use cases. Its source code available in [`www/mocha.test.js`](https://github.com/lr0pb/IDB.js/tree/main/www/mocha.test.js)
 
