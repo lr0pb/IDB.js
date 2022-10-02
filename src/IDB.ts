@@ -94,19 +94,21 @@ export class IDB {
     if (!isReady) return;
     if (!this._checkStore(name, store)) return;
     const tx: IDBTransaction = this.db.transaction(store, mode);
-    const os: IDBObjectStore = tx.objectStore(store)
+    const os: IDBObjectStore = tx.objectStore(store);
     const response: any[] = [];
     if (!Array.isArray(actionArgument)) {
       actionArgument = [actionArgument ?? null];
     }
     if (actionArgument && Array.isArray(actionArgument)) {
       for (const arg of actionArgument) {
-        const actioner = os[action](arg);
+        const actioner: IDBRequest = os[action](arg);
         actioner.addEventListener('success', async () => {
           const result = actioner.result;
-          if (!result) return;
-          const itemResp = onSuccess ? await onSuccess(result) : result;
-          if (itemResp !== undefined) response.push(itemResp);
+          if (!result) return response.push(undefined);
+          const actionResponse = onSuccess ? await onSuccess(result) : result;
+          if (actionResponse !== undefined) {
+            response.push(actionResponse);
+          }
         });
       }
     }
@@ -207,9 +209,9 @@ export class IDB {
 */
   public async getAll<Type>(
     store: string, onData?: DataReceivingCallback
-  ): Promise<Type[] | void> {
+  ): Promise<Type[]> {
     let index = 0;
-    const items: Type[] | void = await this._dbCall(
+    let items: Type[] | void = await this._dbCall(
       'getAll', store, 'readonly', 'openCursor', null,
       (result: IDBCursorWithValue): Type | void => {
         if (!result) return;
@@ -220,6 +222,9 @@ export class IDB {
         return value;
       }
     );
+    if (Array.isArray(items)) {
+      items.pop();
+    } else items = [];
     return items;
   }
 /**

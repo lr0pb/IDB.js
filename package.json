@@ -1,6 +1,6 @@
 {
   "name": "idb.js",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "IDB.js is a lightweight high-level promise-based wrapper for fast access to IndexedDB API",
   "author": "lr0pb",
   "license": "MIT",

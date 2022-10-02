@@ -17,11 +17,6 @@ async function checkStore(store, count) {
   assert.strictEqual(items, count);
 }
 
-async function isArray(array) {
-  const isArray = Array.isArray(array);
-  assert.isTrue(isArray);
-}
-
 describe('IDB', () => {
   it('open database', () => {
     try {
@@ -97,9 +92,33 @@ describe('IDB', () => {
   
   it('db.get for multiple items', async () => {
     const resp = await db.get('two', ['id123', 'id234']);
-    isArray(resp);
+    assert.isArray(resp);
     assert.equal(JSON.stringify(resp[0]), JSON.stringify(item1));
     assert.equal(JSON.stringify(resp[1]), JSON.stringify(item2));
+  });
+
+  it('db.get for item that not exist', async () => {
+    const resp = await db.get('two', '1');
+    assert.isNotArray(resp);
+    assert.notExists(resp);
+  });
+
+  it('db.get for multiple items, that not exist', async () => {
+    const resp = await db.get('two', ['1', '2']);
+    assert.isArray(resp);
+    assert.equal(resp.length, 2);
+    resp.forEach((elem) => {
+      assert.notExists(elem);
+    });
+  });
+
+  it('db.get for mulptiple items, when not all exist', async () => {
+    const resp = await db.get('two', ['id123', '1', 'id234', '2']);
+    assert.isArray(resp);
+    assert.equal(resp.length, 4);
+    resp.forEach((elem, i) => {
+      i % 2 ? assert.notExists(elem) : assert.isObject(elem);
+    });
   });
   
   it('db.update for one item', async () => {
@@ -115,14 +134,15 @@ describe('IDB', () => {
     ], (item) => {
       item.prop = 'num9';
     });
-    isArray(items);
+    assert.isArray(items);
     assert.equal(items[0].prop, 'num9');
     assert.equal(items[1].prop, 'num9');
   });
 
   it('plain db.getAll', async () => {
     const items = await db.getAll('three');
-    isArray(items);
+    console.log(items);
+    assert.isArray(items);
     assert.equal(items.length, 4);
   });
 
@@ -134,7 +154,8 @@ describe('IDB', () => {
 
   it('db.getAll in empty store', async () => {
     const resp = await db.getAll('six');
-    assert.equal(JSON.stringify(resp), '[]');
+    assert.isArray(resp);
+    assert.equal(resp.length, 0);
   });
 
   it('db.delete for one item', async () => {

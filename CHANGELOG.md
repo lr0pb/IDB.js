@@ -1,3 +1,9 @@
+# v.2.0.1 (02-10-2022)
+## 🛠️ Patch items receiving methods
+- fix `db.get` return empty array instead undefined for item that not exist
+- fix `db.get` for multiple items return only items that exist
+- fix `db.getAll` return undefined when store is empty
+
 # v.2.0.0 (01-10-2022)
 ## 🔬 Simplify data related actions and rewrite all to TypeScript
 **Breaking changes:**
