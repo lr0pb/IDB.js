@@ -34,7 +34,9 @@ export class IDB {
     return this;
   }
   private _upgradeneeded(objectStores: StoreDefinition[]): void {
-    if (this._options.showLogs) console.log('[IDB] Database upgrading started');
+    if (this._options.showLogs) {
+      console.log('[IDB] Database upgrading started');
+    }
     this.db = this._idb.result;
     const actualStores: StoreContainment = {};
     for (let store of objectStores) {
@@ -44,27 +46,37 @@ export class IDB {
       actualStores[store.name] = true;
     };
     for (let storeName of this.db.objectStoreNames) {
-      if (!actualStores[storeName]) this.db.deleteObjectStore(storeName);
+      if (!actualStores[storeName]) {
+        this.db.deleteObjectStore(storeName);
+      }
     };
   }
   private _success(): void {
-    if (this._options.showLogs) console.log('[IDB] Database successfully opened');
+    if (this._options.showLogs) {
+      console.log('[IDB] Database successfully opened');
+    }
     this.db = this._idb.result;
     this.db.addEventListener('versionchange', () => this._versionchange());
   }
   private _versionchange(): void {
     this.db.close();
     this._closedDueToVersionChange = true;
-    this._throwError(true, '[IDB] Database closed due to version change, reload page');
+    this._throwError(
+      true, '[IDB] Database closed due to version change, reload page'
+    );
   }
   private async _isDbReady(): Promise<boolean> {
-    if (this._closedDueToVersionChange) return false;
-    if (!this.db) await new Promise((resolve: (value: void) => void): void => {
-      const isComplete = (): void => {
-        this.db ? resolve() : requestAnimationFrame(isComplete);
-      }
-      isComplete();
-    });
+    if (this._closedDueToVersionChange) {
+      return false;
+    }
+    if (!this.db) {
+      await new Promise((resolve: (value: void) => void): void => {
+        const isComplete = (): void => {
+          this.db ? resolve() : requestAnimationFrame(isComplete);
+        }
+        isComplete();
+      });
+    }
     return true;
   }
   private _err(name: string, store?: string): string {
@@ -72,13 +84,18 @@ export class IDB {
   }
   private _throwError(error: boolean, log: string): void {
     const method: Function = error ? console.error : console.warn;
-    if (!error || (this._options.showErrorsAsLogs && error)) method(log);
-    else throw new Error(log);
+    if (!error || (this._options.showErrorsAsLogs && error)) {
+      method(log);
+    } else {
+      throw new Error(log);
+    }
     return;
   }
   private _checkStore(name: string, store: string): boolean | void {
     if (!this.db.objectStoreNames.contains(store)) {
-      return this._throwError(true, `${this._err(name)}database haven't "${store}" store`);
+      return this._throwError(
+        true, `${this._err(name)}database haven't "${store}" store`
+      );
     }
     return true;
   }
@@ -91,8 +108,12 @@ export class IDB {
     onSuccess?: Function
   ): Promise<any> {
     const isReady:boolean = await this._isDbReady();
-    if (!isReady) return;
-    if (!this._checkStore(name, store)) return;
+    if (!isReady) {
+      return;
+    }
+    if (!this._checkStore(name, store)) {
+      return;
+    }
     const tx: IDBTransaction = this.db.transaction(store, mode);
     const os: IDBObjectStore = tx.objectStore(store);
     const response: any[] = [];
@@ -104,7 +125,9 @@ export class IDB {
         const actioner: IDBRequest = os[action](arg);
         actioner.addEventListener('success', async () => {
           const result = actioner.result;
-          if (!result) return response.push(undefined);
+          if (!result && !['delete', 'clear'].includes(action)) {
+            return response.push(undefined);
+          }
           const actionResponse = onSuccess ? await onSuccess(result) : result;
           if (actionResponse !== undefined) {
             response.push(actionResponse);
@@ -235,7 +258,9 @@ export class IDB {
   public async delete<Key>(store: string, itemKeys: Key | Key[]): Promise<void> {
     await this._dbCall(
       'deleteItem', store, 'readwrite', 'delete', itemKeys,
-      async () => { await this._onDataUpdateCall(store, 'delete'); }
+      async () => {
+        await this._onDataUpdateCall(store, 'delete');
+      }
     );
   }
 /**
@@ -245,7 +270,9 @@ export class IDB {
   public async deleteAll(store: string): Promise<void> {
     await this._dbCall(
       'deleteAll', store, 'readwrite', 'clear', null,
-      async () => { await this._onDataUpdateCall(store, 'deleteAll'); }
+      async () => {
+        await this._onDataUpdateCall(store, 'deleteAll');
+      }
     );
   }
 /**

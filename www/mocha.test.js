@@ -9,6 +9,9 @@ mocha.setup('bdd');
 
 let db = null;
 let unregister = null;
+let setResponse = null;
+let deleteResponse = null;
+let deleteAllResponse = null;
 const item1 = { prop: 'num2', id: 'id123' };
 const item2 = { prop: 'num3', id: 'id234' };
 
@@ -44,19 +47,26 @@ describe('IDB', () => {
     await checkStore('one', 0);
   });
 
+  it('register for data updates on store', async () => {
+    unregister = await db.onDataUpdate('one', (args) => {
+      setResponse = args;
+    });
+    assert.typeOf(unregister, 'function');
+  });
+
   it('set item to autoIncrement store', async () => {
     const resp = await db.set('one', { prop: 'num1' });
     assert.isTrue(resp);
     await checkStore('one', 1);
   });
 
-  it('register for data updates on store', async () => {
-    unregister = await db.onDataUpdate('two', (args) => {
-      it('response from onDataUpdate', () => {
-        assert.typeOf(args, 'object');
-      });
-    });
-    assert.typeOf(unregister, 'function');
+  it('type "set" response from onDataUpdate', () => {
+    assert.typeOf(setResponse, 'object');
+    assert.equal(setResponse.type, 'set');
+  });
+
+  it('unregister listener for store', () => {
+    unregister();
   });
 
   it('set multimple items at once', async () => {
@@ -69,10 +79,6 @@ describe('IDB', () => {
   it('db.has for item in index store', async () => {
     const haveItem = await db.has('two', 'id123');
     assert.isTrue(haveItem);
-  });
-
-  it('unregister listener for store', () => {
-    unregister();
   });
   
   it('fill store to future manipulations', async () => {
@@ -158,9 +164,21 @@ describe('IDB', () => {
     assert.equal(resp.length, 0);
   });
 
+  it('register for "delete" onDataUpdate', async () => {
+    unregister = await db.onDataUpdate('three', (args) => {
+      deleteResponse = args;
+    });
+  });
+
   it('db.delete for one item', async () => {
     await db.delete('three', 'id345');
     await checkStore('three', 3);
+  });
+
+  it('type "delete" response from onDataUpdate', () => {
+    assert.typeOf(deleteResponse, 'object');
+    assert.equal(deleteResponse.type, 'delete');
+    unregister();
   });
 
   it('db.delete multiple items', async () => {
@@ -168,6 +186,23 @@ describe('IDB', () => {
       'id456', 'id567'
     ]);
     await checkStore('three', 1);
+  });
+
+  it('register for "deleteAll" onDataUpdate', async () => {
+    unregister = await db.onDataUpdate('three', (args) => {
+      deleteAllResponse = args;
+    });
+  });
+
+  it('db.deleteAll call', async () => {
+    await db.deleteAll('three');
+    await checkStore('three', 0);
+  });
+
+  it('type "deleteAll" response from onDataUpdate', () => {
+    assert.typeOf(deleteAllResponse, 'object');
+    assert.equal(deleteAllResponse.type, 'deleteAll');
+    unregister();
   });
 });
 

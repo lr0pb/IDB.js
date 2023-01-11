@@ -1,3 +1,7 @@
+# v.2.0.2 (11-01-2023)
+## 🛠️ Patch onDataUpdate not call listeners after deleting events
+- fix that `db.onDataUpdate` not call listeners when `delete` and `deleteAll` events happened in the listened store
+
 # v.2.0.1 (02-10-2022)
 ## 🛠️ Patch items receiving methods
 - fix `db.get` return empty array instead undefined for item that not exist
