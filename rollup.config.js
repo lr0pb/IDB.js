@@ -5,7 +5,7 @@ const fs = require('fs');
 export default {
   input: 'src/IDB.ts',
   output: [{
-    file: 'out/IDB.worker.js',
+    file: 'out/IDB.iife.js',
     format: 'iife',
     name: 'IDB'
   }, {

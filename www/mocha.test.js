@@ -109,6 +109,13 @@ describe('IDB', () => {
     assert.notExists(resp);
   });
 
+  it('db.get for multiple items, but give only 1 item', async () => {
+    const resp = await db.get('two', ['id123']);
+    assert.isArray(resp);
+    assert.equal(resp.length, 1);
+    assert.equal(JSON.stringify(resp[0]), JSON.stringify(item1));
+  });
+
   it('db.get for multiple items, that not exist', async () => {
     const resp = await db.get('two', ['1', '2']);
     assert.isArray(resp);

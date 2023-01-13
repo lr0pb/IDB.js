@@ -137,7 +137,7 @@ export class IDB {
     }
     return new Promise((resolve: (value: any) => void) => {
       tx.addEventListener('complete', async () => {
-        resolve(response.length == 1 ? response[0] : response);
+        resolve(response.length === 1 ? response[0] : response);
       });
     });
   }
@@ -156,10 +156,10 @@ export class IDB {
 * @example {title: 'Book', author: 'Bob', data: new ArrayBuffer(32), pages: 12}
 */
   public async set<Type>(store: string, items: Type): Promise<boolean | void>;
-  public async set<Type>(store: string, items: Type[]): Promise<boolean[] | void>;
+  public async set<Type>(store: string, items: Type[]): Promise<boolean[] | void[]>;
   public async set<Type>(
     store: string, items: Type | Type[]
-  ): Promise<boolean | boolean[] | void> {
+  ): Promise<boolean | boolean[] | void | void[]> {
     const resp: boolean[] | void = await this._dbCall(
       'setItem', store, 'readwrite', 'put', items,
       async (item: Type) => {
@@ -175,13 +175,16 @@ export class IDB {
 * @param itemKeys Key value to access item in store
 */
   public async get<Type, Key>(store: string, itemKeys: Key): Promise<Type | void>
-  public async get<Type, Key>(store: string, itemKeys: Key[]): Promise<Type[] | void>
+  public async get<Type, Key>(store: string, itemKeys: Key[]): Promise<(Type | void)[]>
   public async get<Type, Key>(
     store: string, itemKeys: Key | Key[]
-  ): Promise<Type | Type[] | void> {
+  ): Promise<Type | void | (Type | void)[]> {
     const items: Type[] | void = await this._dbCall(
       'getItem', store, 'readonly', 'get', itemKeys
     );
+    if (Array.isArray(itemKeys) && !Array.isArray(items)) {
+      return [items];
+    }
     return items?.length === 1 ? items[0] : items;
   }
 /**
@@ -213,17 +216,25 @@ export class IDB {
     ) return this._throwError(
       true, `${base}UpdateCallbacks length should be the same as itemKeys or should be only one UpdateCallback`
     );
-    let items: Type | Type[] | void = await this.get<Type, Key>(store, itemKeys);
+    const items: (Type | void)[] | void = await this.get<Type, Key>(store, itemKeys);
     if (!items) return;
-    if (!Array.isArray(items)) items = [items];
-    if (!items.length || items.length !== itemKeys.length) return this._throwError(
-      true, `${base}Cannot update items with given keys, because not all items exist`
-    );
-    for (let i = 0; i < items.length; i++) {
-      await updateCallbacks[updateCallbacks.length == 1 ? 0 : i](items[i]);
+    const verifiedItems: Type[] = [];
+    for (const item of items) {
+      if (item === undefined) {
+        return this._throwError(
+          true, `${base}Cannot update items with given keys, because not all items exist`
+        );
+      } else {
+        verifiedItems.push(item);
+      }
     }
-    await this.set<Type>(store, items);
-    return items.length == 1 ? items[0] : items;
+    for (let i = 0; i < verifiedItems.length; i++) {
+      await updateCallbacks[updateCallbacks.length == 1 ? 0 : i](
+        verifiedItems[i]
+      );
+    }
+    await this.set<Type>(store, verifiedItems);
+    return verifiedItems.length == 1 ? verifiedItems[0] : verifiedItems;
   }
 /**
 * Receive all items from the store
@@ -284,7 +295,7 @@ export class IDB {
   public async has<Type>(store: string, itemKeys: Type[]): Promise<boolean[] | void>
   public async has(store: string): Promise<number | void>
   public async has<Type>(store: string, itemKeys?: Type): Promise<boolean | boolean[] | number | void> {
-    let resp: Array<number | void> | number | void = await this._dbCall(
+    let resp: (number | void)[] | number | void = await this._dbCall(
       'hasItem', store, 'readonly', 'count', itemKeys
     );
     if (!itemKeys) {

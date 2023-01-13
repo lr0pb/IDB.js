@@ -1,5 +1,10 @@
+# v.2.0.3 (13-01-2023)
+## 🛠️ Patch db.get call with multiple keys
+- fix that `db.get` when call with multiple keys but it is actually 1 key in array return requested item instead return it as alone item in array
+- rename package's iife build in [`/out`](./out/) from `IDB.worker.js` to `IDB.iife.js`
+
 # v.2.0.2 (11-01-2023)
-## 🛠️ Patch onDataUpdate not call listeners after deleting events
+## 🛠️ Patch db.onDataUpdate not call listeners after deleting events
 - fix that `db.onDataUpdate` not call listeners when `delete` and `deleteAll` events happened in the listened store
 
 # v.2.0.1 (02-10-2022)
