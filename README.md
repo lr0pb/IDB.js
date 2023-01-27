@@ -10,32 +10,19 @@
 1. [Develop](#develop)
 
 # Install
-Version with `es` export and as `iife` available in the [`out` directory](https://github.com/lr0pb/IDB.js/tree/main/out/)
-
-Typescript source and types definition files can be found in the [`src` directory](https://github.com/lr0pb/IDB.js/tree/main/src/)
-### Main thread
-```js
-import { IDB } from './out/IDB.module.js'
+Install `IDB.js` via `npm`
 ```
-### Worker thread
-You can use IDB.js in **worker thread** via the same `import` statement, but it works not in [all](https://caniuse.com/mdn-javascript_statements_import_worker_support) browsers. In this case you can use `importScripts`
+npm i @lr0pb/idb
+```
+And then import in your code (make sure to use bundler i.e. webpack, Rollup, Parcel etc.)
 ```js
-importScripts('./out/IDB.iife.js');
+import { IDB } from '@lr0pb/idb';
 ```
 
 # How to use
-Open a new database by creating new instance of class. Provide database `name`, `version` and arrays of `StoreDefinition` object
-```ts
-interface StoreDefinition {
-  name: string,
-  index: {
-    keyPath?: string,
-    autoIncrement?: boolean
-  }
-}
-```
-`StoreDefinition.index` is a [`IDBObjectStoreParameters`](https://w3c.github.io/IndexedDB/#dictdef-idbobjectstoreparameters) object
-### Initialize database
+
+### Create database
+Provide `name`, `version` and stores which will be initialized alongside with database
 ```js
 const db = new IDB('library', 1, [
   { name: 'books', index: { keyPath: 'id' } },
@@ -43,10 +30,23 @@ const db = new IDB('library', 1, [
   { name: 'manufacturers', index: { autoIncrement: true } }
 ]);
 ```
-You can also provide fourth argument `options` described in [`new IDB`](https://lr0pb.github.io/IDB.js/classes/IDB#constructor)
+`StoreDefinition` objects are simple: `name` of store and `index` object, which described how should indexed data inside the store
+
+This is a [`IDBObjectStoreParameters`](https://w3c.github.io/IndexedDB/#dictdef-idbobjectstoreparameters) object, which is a part of original IndexedDB API
+
+You can also provide fourth argument `options` described in [`new IDB`](https://lr0pb.github.io/IDB.js/classes/IDB/IDB#constructor)
+
+### Main functions to operate with data
+1. [set](#set-items-in-stores)
+1. [has](#check-is-store-contain-some-item)
+1. [update](#update-item-in-store)
+1. [get](#get-items-from-store)
+1. [delete](#item-and-stores-deletion)
+1. [onDataUpdate](#listen-for-store-updates)
+
 ### Set items in stores
-Add item to store via simple `db.set` method
-> `db.set` support second argument to be one item or an array of items
+Add item to store via `db.set(store, item)` method
+> `db.set` support second argument to be one item or an **array** of items
 ```js
 async function addAuthor(books) {
   await db.set('authors', {
@@ -59,9 +59,10 @@ async function addAuthor(books) {
   ]);
 }
 ```
-### Check is item are in store and update them
-Check if store have certain item via `db.has` and update them via `db.update`
-> `db.has` and `db.update` support second argument to be one item's key or an array of item keys
+
+### Check is store contain some item
+Check if store have certain item via `db.has(store, itemKey)` or get count of all items in the store by no passing `itemKey` argument
+> `db.has` support second argument to be one item's key or an **array** of item keys
 ```js
 async function addBook() {
   const book = {
@@ -71,24 +72,31 @@ async function addBook() {
     genre: 'Mysteries'
   };
   await db.set('books', book);
-  const isAuthorExist = await db.has('authors', book.author);
-  if (isAuthorExist) {
-    await db.update('authors', book.author, async (author) => {
-      author.books.push(book.id);
-      await sendAnalytics();
-    });
-  }
+  // in fact you dont need to call db.has() after set, because db.set() itself return boolean that indicates is item was successfully setted
+  const isBookSaved = await db.has('books', book.id); // true
+  const booksCount = await db.has('books'); // 1
 }
 ```
-> `UpdateCallback` function in [`db.update`](https://lr0pb.github.io/IDB.js/classes/IDB#update) can be **async**
 
-> If you provide multiple keys, `UpdateCallback` will be called for each item. If you want to use separate `UpdateCallback` functions for each item, provide array of `UpdateCallback` functions **same length** as item keys array length
+### Update item in store
+Use `db.update(store, itemKey, UpdateCallback)` to update one or more items
+> `db.update` support second argument to be one item's key or an **array** of item keys
+```js
+async function addBookToAuthor(book) {
+  await db.update('authors', book.author, async (author) => {
+    // this callback function receives item object and you should apply changes directly to this object
+    author.books.push(book.id);
+    await sendAnalytics();
+  });
+}
+```
+> `UpdateCallback` function passed to [`db.update`](https://lr0pb.github.io/IDB.js/classes/IDB/IDB#update) can be **async**
 
-> `db.has` also can return count of items in store: just call it only with store name `db.has('books'); // 1`
+> If you provide multiple item keys, `UpdateCallback` will be called for each item. If you want to use separate `UpdateCallback` functions for each item, provide array of `UpdateCallback` functions **same length** as item keys array length
 
-### Read store entries
-Get one item via `db.get` and all store items via `db.getAll`
-> `db.get` support second argument to be one item's key or an array of item keys
+### Get items from store
+Get one or more items by key via `db.get(store, itemKey)` and all store items via `db.getAll(store)`
+> `db.get` support second argument to be one item's key or an **array** of item keys
 ```js
 async function renderAuthor() {
   const author = await db.get('author', 'Agatha Christie');
@@ -115,14 +123,14 @@ async function renderAuthor() {
   // ]
 }
 
-async function renderBooks() {
+async function renderAllBooks() {
   const books = await db.getAll('books');
   for (let book of books) {
     renderBook(book);
   }
 }
 ```
-Additionally, you can set callback for running function every time new item receives from database, its best for speeding up processes like rendering
+Additionally, you can set `DataReceivingCallback` callback for call it every time new item receives from database
 ```js
 async function renderBooksProgressive() {
   await db.getAll('books', (book) => {
@@ -130,29 +138,31 @@ async function renderBooksProgressive() {
   });
 }
 ```
-> `DataReceivingCallback` function in [`db.getAll`](https://lr0pb.github.io/IDB.js/classes/IDB#getAll) MUST be **sync** or it will not wait for asynchronous function completed
+> `DataReceivingCallback` function passed to [`db.getAll`](https://lr0pb.github.io/IDB.js/classes/IDB/IDB#getAll) MUST be **sync** or it will not wait for asynchronous function completed
 
 ### Item and stores deletion
-Delete whole store simply via upgrading database version and remove relevant `StoreDefinition` object from `stores` array. Delete one item via `db.delete` and clear all store entries via `db.deleteAll`
-> `db.delete` support second argument to be one item's key or an array of item keys
+Delete whole store by upgrading database version and remove relevant `StoreDefinition` object from `stores` array
 ```js
 const db = new IDB('library', 2, [
   { name: 'books', index: { keyPath: 'id' } },
   { name: 'authors', index: { keyPath: 'name' } }
 ]);
 // 'manufacturers' store was deleted at all, it cannot be longer accessed
-
+```
+Delete one or more item by key via `db.delete(store, itemKey)` and clear all store entries via `db.deleteAll(store)`
+> `db.delete` support second argument to be one item's key or an **array** of item keys
+```js
 async function deleteBooks() {
   await db.delete('books', 12345);
   await db.delete('books', [
     67890, 34567, ...
   ]);
-  await db.deleteAll('author'); // authors store still available but have no items
+  await db.deleteAll('author'); // authors store is still available but have no items
 }
 ```
 ### Listen for store updates
-You can register multiple callbacks to spot if items added, updated or deleted from the store. These callbacks called after actual operation with data in order to when they are registered.
-To unregister callback, call returned from `db.onDataUpdate` function [`UnregisterListener`](https://lr0pb.github.io/IDB.js/classes/IDB#onDataUpdate)
+You can register multiple functions to spot if some changes happened in the store. These callbacks called after actual operation with data in order to time they are registered.
+To unregister callback, call returned from `db.onDataUpdate` [`UnregisterListener`](https://lr0pb.github.io/IDB.js/classes/IDB/IDB#onDataUpdate) function
 ```js
 async signForUpdates() {
   const unregister = await db.onDataUpdate('books', async ({store, type, item}) => {
@@ -165,15 +175,15 @@ async signForUpdates() {
   unregister();
 }
 ```
-> `DataUpdatedCallback` function in [`db.onDataUpdate`](https://lr0pb.github.io/IDB.js/classes/IDB#onDataUpdate) can be **async**
+> `DataUpdatedCallback` function passed to [`db.onDataUpdate`](https://lr0pb.github.io/IDB.js/classes/IDB/IDB#onDataUpdate) can be **async**
 
 # Changes
 View all changes during versions in [CHANGELOG](https://github.com/lr0pb/IDB.js/tree/main/CHANGELOG.md)
 # License
 IDB.js distributed under the [MIT](https://github.com/lr0pb/IDB.js/tree/main/LICENSE) license
 # API
-View whole API documentation [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB.IDB)
+View whole detailed API documentation [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB.IDB)
 # Develop
-Clone this repo on your machine and run `npm i` in a root
+Clone this repo to your machine and run `npm i` in a root
 
 Write tests to your code in [`www/mocha.test.js`](https://github.com/lr0pb/IDB.js/tree/main/www/mocha.test.js) file and run its via `npm start` (will be open default browser window with tests page hosted by local server)

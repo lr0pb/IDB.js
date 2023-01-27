@@ -1,20 +1,29 @@
 {
-  "name": "idb.js",
-  "version": "2.0.2",
-  "description": "IDB.js is a lightweight high-level promise-based wrapper for fast access to IndexedDB API",
+  "name": "idb",
+  "version": "2.0.3",
+  "description": "@lr0pb/idb is a lightweight high-level promise-based wrapper for fast access to IndexedDB API",
   "author": "lr0pb",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/lr0pb/IDB.js.git"
+    "url": "git+https://github.com/lr0pb/IDB.js.git"
   },
+  "bugs": {
+    "url": "https://github.com/lr0pb/IDB.js/issues"
+  },
+  "homepage": "https://github.com/lr0pb/IDB.js#readme",
+  "main": "index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "start": "rollup -c rollup.config.dev.js -w",
-    "build": "rollup -c && npx typedoc"
+    "start": "rollup -c -w -m",
+    "build": "set PROD=1 && rollup -c",
+    "doc": "npx typedoc"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.5.0",
-    "rollup": "^2.79.0",
+    "mocha": "^10.2.0",
+    "rollup": "^2.79.1",
+    "rollup-plugin-dts": "^4.2.3",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-serve": "^2.0.1",
     "rollup-plugin-terser": "^7.0.2",

@@ -1,0 +1,8 @@
+.github/
+dist/*.d.ts
+docs/
+src/
+test/
+rollup.config.js
+tsconfig.json
+typedoc.json

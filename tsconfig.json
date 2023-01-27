@@ -3,6 +3,8 @@
     "target": "ES2019",
     "module": "ESNext",
     "baseUrl": "./src",
-    "strict": true
+    "strict": true,
+    "declaration": true,
+    "declarationDir": ""
   }
 }
