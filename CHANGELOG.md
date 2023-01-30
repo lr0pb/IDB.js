@@ -1,3 +1,10 @@
+# v.2.0.4 (30-01-2023)
+## 🚀 Publish package to NPM
+IDB.js now available via npm
+```bash
+npm install @lr0pb/idb
+```
+
 # v.2.0.3 (13-01-2023)
 ## 🛠️ Patch db.get call with multiple keys
 - fix that `db.get` when call with multiple keys but it is actually 1 key in array return requested item instead return it as alone item in array
