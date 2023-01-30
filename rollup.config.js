@@ -56,21 +56,3 @@ export default isProd
       livereload('www')
     ]
   }];
-/*
-
-export const a = {
-  input: 'src/IDB.ts',
-  output: {
-    file: 'www/IDB.js',
-    format: 'es'
-  },
-  plugins: [
-    typescript(),
-    serve({
-      contentBase: 'www', open: true,
-      host: 'localhost', port: 3080
-    }),
-    livereload('www')
-  ]
-};
-*/

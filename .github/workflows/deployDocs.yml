@@ -31,3 +31,5 @@ jobs:
         with:
           build-comand: doc
           output-dir: docs
+        env:
+          PROD: 1
