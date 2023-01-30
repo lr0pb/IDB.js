@@ -2,9 +2,9 @@ name: Deploy docs
 
 on:
   push:
-    branches: ['main']
+    branches: [main]
   pull_request:
-    branches: ['main']
+    branches: [main]
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -15,7 +15,7 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: 'pages'
+  group: pages
   cancel-in-progress: true
 
 jobs:
@@ -26,8 +26,8 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - name: Deploy app to GitHub Pages
+        uses: lr0pb/deploy-pages@v1
         id: deploy
-        uses: lr0pb/deploy-pages@v1.0.0
         with:
-          build-comand: 'doc'
-          output-dir: 'docs'
+          build-comand: doc
+          output-dir: docs

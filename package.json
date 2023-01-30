@@ -15,7 +15,7 @@
   "main": "index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "start": "rollup -c -w -m",
+    "dev": "rollup -c -w -m",
     "build": "set PROD=1 && rollup -c",
     "doc": "npx typedoc",
     "prepublish": "npm run build"

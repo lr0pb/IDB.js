@@ -1,3 +1,7 @@
+# v2.0.5 (31-01-2023)
+## 📝 Fixes in package distribution
+Remove tests output folder from package and return types declaration files
+
 # v.2.0.4 (30-01-2023)
 ## 🚀 Publish package to NPM
 IDB.js now available via npm

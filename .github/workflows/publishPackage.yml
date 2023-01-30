@@ -13,8 +13,8 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16.x'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: 16.x
+          registry-url: https://registry.npmjs.org
       - name: Publish package
         run: |
           npm ci

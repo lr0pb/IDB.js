@@ -1,8 +1,10 @@
 .github/
 dist/*.d.ts
+!dist/index.d.ts
 docs/
 src/
 test/
+www/
 rollup.config.js
 tsconfig.json
 typedoc.json
