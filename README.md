@@ -3,7 +3,6 @@
 **IDB.js** is a lightweight high-level promise-based wrapper for fast access to IndexedDB API
 
 ![Latest release](https://img.shields.io/github/v/release/lr0pb/deploy-pages?&color=g&label=Version&logo=npm)
-
 [![Publish package](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml/badge.svg)](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml)
 
 ### Table of content
