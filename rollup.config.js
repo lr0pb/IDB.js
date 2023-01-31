@@ -20,6 +20,11 @@ export default isProd
     }],
     plugins: [
       typescript(),
+      copy({
+        targets: [
+          {src: 'src/IDB.types.d.ts', dest: 'dist'}
+        ]
+      }),
       terser({ keep_classnames: true, compress: { ecma: 2019 } }),
     ]
   }, {
