@@ -38,7 +38,7 @@ const db = new IDB('library', 1, [
 
 This is a [`IDBObjectStoreParameters`](https://w3c.github.io/IndexedDB/#dictdef-idbobjectstoreparameters) object, which is a part of original IndexedDB API
 
-You can also provide fourth argument `options` described in [`new IDB`](https://lr0pb.github.io/IDB.js/classes/IDB/IDB#constructor)
+You can also provide fourth argument `options` described in [`new IDB`](https://lr0pb.github.io/IDB.js/classes/IDB.IDB#constructor)
 
 ### Main functions to operate with data
 1. [set](#set-items-in-stores)
@@ -94,7 +94,7 @@ async function addBookToAuthor(book) {
   });
 }
 ```
-> `UpdateCallback` function passed to [`db.update`](https://lr0pb.github.io/IDB.js/classes/IDB/IDB#update) can be **async**
+> `UpdateCallback` function passed to [`db.update`](https://lr0pb.github.io/IDB.js/classes/IDB.IDB#update) can be **async**
 
 > If you provide multiple item keys, `UpdateCallback` will be called for each item. If you want to use separate `UpdateCallback` functions for each item, provide array of `UpdateCallback` functions **same length** as item keys array length
 
@@ -142,7 +142,7 @@ async function renderBooksProgressive() {
   });
 }
 ```
-> `DataReceivingCallback` function passed to [`db.getAll`](https://lr0pb.github.io/IDB.js/classes/IDB/IDB#getAll) MUST be **sync** or it will not wait for asynchronous function completed
+> `DataReceivingCallback` function passed to [`db.getAll`](https://lr0pb.github.io/IDB.js/classes/IDB.IDB#getAll) MUST be **sync** or it will not wait for asynchronous function completed
 
 ### Item and stores deletion
 Delete whole store by upgrading database version and remove relevant `StoreDefinition` object from `stores` array
@@ -166,7 +166,7 @@ async function deleteBooks() {
 ```
 ### Listen for store updates
 You can register multiple functions to spot if some changes happened in the store. These callbacks called after actual operation with data in order to time they are registered.
-To unregister callback, call returned from `db.onDataUpdate` [`UnregisterListener`](https://lr0pb.github.io/IDB.js/classes/IDB/IDB#onDataUpdate) function
+To unregister callback, call returned from `db.onDataUpdate` [`UnregisterListener`](https://lr0pb.github.io/IDB.js/classes/IDB.IDB#onDataUpdate) function
 ```js
 async signForUpdates() {
   const unregister = await db.onDataUpdate('books', async ({store, type, item}) => {
@@ -179,15 +179,15 @@ async signForUpdates() {
   unregister();
 }
 ```
-> `DataUpdatedCallback` function passed to [`db.onDataUpdate`](https://lr0pb.github.io/IDB.js/classes/IDB/IDB#onDataUpdate) can be **async**
+> `DataUpdatedCallback` function passed to [`db.onDataUpdate`](https://lr0pb.github.io/IDB.js/classes/IDB.IDB#onDataUpdate) can be **async**
 
 # Changes
 View all changes during versions in [CHANGELOG](https://github.com/lr0pb/IDB.js/tree/main/CHANGELOG.md)
 # License
 IDB.js distributed under the [MIT](https://github.com/lr0pb/IDB.js/tree/main/LICENSE) license
 # API
-View whole detailed API documentation [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB/IDB)
+View whole detailed API documentation [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB.IDB)
 # Develop
 Clone repo on your machine and run `npm i`
 
-Write tests in [`test/mocha.test.js`](https://github.com/lr0pb/IDB.js/tree/main/test/mocha.test.js) file and run them via `npm run dev` (will open default browser window with tests page)
+Write tests in [`test/mocha.test.js`](https://github.com/lr0pb/IDB.js/blob/main/test/mocha.test.js) file and run them via `npm run dev` (will open default browser window with tests page)
