@@ -5,13 +5,25 @@ import {
 } from './IDB.types.d.js'
 
 export class IDB {
+  /**
+   * Storage for listeners setted with `db.onDataUpdate` method
+   */
   private readonly _listeners: IDBListeners;
-  private readonly _idb: IDBRequest;
+  /**
+   * IDB open request object https://w3c.github.io/IndexedDB/#open-requests
+   */
+  private readonly _openRequest: IDBRequest;
+  /**
+   * Flag to check is connection to database was closed due to versionchange event
+   */
   private _closedDueToVersionChange?: boolean;
   /**
-   * Access to raw idb object. Use this for close database via yourDbVariable.db.close()
+   * Access to raw database connection object. Use this for close database via yourDbVariable.db.close()
    */
   db!: IDBDatabase;
+  /**
+   * Storage for options passed to new IDB()
+   */
   private readonly _options: IDBOptions;
 /**
 * Create database and return its wrapper
@@ -28,16 +40,16 @@ export class IDB {
   ) {
     this._options = options;
     this._listeners = {};
-    this._idb = indexedDB.open(name, version);
-    this._idb.addEventListener('upgradeneeded', () => this._upgradeneeded(objectStores));
-    this._idb.addEventListener('success', () => this._success());
+    this._openRequest = indexedDB.open(name, version);
+    this._openRequest.addEventListener('upgradeneeded', () => this._upgradeneeded(objectStores));
+    this._openRequest.addEventListener('success', () => this._success());
     return this;
   }
   private _upgradeneeded(objectStores: StoreDefinition[]): void {
     if (this._options.showLogs) {
       console.log('[IDB] Database upgrading started');
     }
-    this.db = this._idb.result;
+    this.db = this._openRequest.result;
     const actualStores: StoreContainment = {};
     for (let store of objectStores) {
       if (!this.db.objectStoreNames.contains(store.name)) {
@@ -55,7 +67,7 @@ export class IDB {
     if (this._options.showLogs) {
       console.log('[IDB] Database successfully opened');
     }
-    this.db = this._idb.result;
+    this.db = this._openRequest.result;
     this.db.addEventListener('versionchange', () => this._versionchange());
   }
   private _versionchange(): void {
@@ -188,7 +200,7 @@ export class IDB {
     return items?.length === 1 ? items[0] : items;
   }
 /**
-* Sugar for getting, modifying and setting item back to the store
+* Sugar method for getting, modifying and setting back item to the store
 * @param store Name of database store
 * @param itemKeys Key value to access item in store
 * @param updateCallbacks Async function that receives item and can directly modify them
@@ -275,7 +287,7 @@ export class IDB {
     );
   }
 /**
-* Delete several or all items from the store
+* Delete all items from the store
 * @param store Name of database store
 */
   public async deleteAll(store: string): Promise<void> {
@@ -287,7 +299,7 @@ export class IDB {
     );
   }
 /**
-* Check for item with key exist or count how much items are in the store
+* Check for item with key exist or return how much items are in the store if no itemKeys argument
 * @param store Name of database store
 * @param itemKeys Key value to access item in store, if no key - return items amount in the store
 */
@@ -312,7 +324,7 @@ export class IDB {
 /**
 * Set a listener to the store that calls every time some changes in the store happened
 * @param store Name of database store
-* @param callback Async function that calls every time when some item in the store modified
+* @param callback Async function that calls every time when 'set', 'delete' and 'deleteAll' operations in the store happens
 */
   public async onDataUpdate(
     store: string, callback: DataUpdatedCallback

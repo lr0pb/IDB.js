@@ -2,7 +2,7 @@
 
 **IDB.js** is a lightweight high-level promise-based wrapper for fast access to IndexedDB API
 
-![Latest release](https://img.shields.io/github/v/release/lr0pb/deploy-pages?&color=g&label=Version&logo=npm)
+[![Latest release](https://img.shields.io/github/v/release/lr0pb/IDB.js?&color=g&label=Version&logo=npm)](https://www.npmjs.com/package/@lr0pb/idb)
 [![Publish package](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml/badge.svg)](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml)
 
 ### Table of content
@@ -14,11 +14,11 @@
 1. [Develop](#develop)
 
 # Install
-Install `IDB.js` via `npm`
+Install `IDB.js` via [`npm`](https://www.npmjs.com/package/@lr0pb/idb)
 ```
 npm i @lr0pb/idb
 ```
-And then import in your code (make sure to use bundler i.e. webpack, Rollup, Parcel etc.)
+And then import in your code (make sure to use bundler such as webpack, Rollup, Parcel etc.)
 ```js
 import { IDB } from '@lr0pb/idb';
 ```
@@ -188,6 +188,6 @@ IDB.js distributed under the [MIT](https://github.com/lr0pb/IDB.js/tree/main/LIC
 # API
 View whole detailed API documentation [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB/IDB)
 # Develop
-Clone this repo to your machine and run `npm i` in a root
+Clone repo on your machine and run `npm i`
 
-Write tests to your code in [`test/mocha.test.js`](https://github.com/lr0pb/IDB.js/tree/main/test/mocha.test.js) file and run its via `npm run dev` (will open default browser window with tests page)
+Write tests in [`test/mocha.test.js`](https://github.com/lr0pb/IDB.js/tree/main/test/mocha.test.js) file and run them via `npm run dev` (will open default browser window with tests page)

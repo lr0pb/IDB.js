@@ -1,11 +1,13 @@
 # v2.0.5 (31-01-2023)
 ## 📝 Fixes in package distribution
-Remove tests output folder from package and return types declaration files
+- remove tests output folder from package build
+- fix that types declaration file was not contain in package
+- change version tags pattern from `v.2.x.x` to `v2.x.x`
 
 # v.2.0.4 (30-01-2023)
 ## 🚀 Publish package to NPM
-IDB.js now available via npm
-```bash
+IDB.js now available via [`npm`](https://www.npmjs.com/package/@lr0pb/idb)
+```
 npm install @lr0pb/idb
 ```
 
@@ -13,6 +15,7 @@ npm install @lr0pb/idb
 ## 🛠️ Patch db.get call with multiple keys
 - fix that `db.get` when call with multiple keys but it is actually 1 key in array return requested item instead return it as alone item in array
 - rename package's iife build in [`/out`](./out/) from `IDB.worker.js` to `IDB.iife.js`
+  > As of 2.0.4 onwards package builds publish only on [`npm`](https://www.npmjs.com/package/@lr0pb/idb)
 
 # v.2.0.2 (11-01-2023)
 ## 🛠️ Patch db.onDataUpdate not call listeners after deleting events
@@ -20,12 +23,12 @@ npm install @lr0pb/idb
 
 # v.2.0.1 (02-10-2022)
 ## 🛠️ Patch items receiving methods
-- fix `db.get` return empty array instead undefined for item that not exist
-- fix `db.get` for multiple items return only items that exist
-- fix `db.getAll` return undefined when store is empty
+- fix `db.get` return empty array instead of `undefined` for item that not exist
+- fix `db.get` for multiple items return only items that exist instead of mixed values array that contains `undefined` for keys by which items are not exists
+- fix `db.getAll` return undefined when store is empty instead of empty array
 
 # v.2.0.0 (01-10-2022)
-## 🔬 Simplify data related actions and rewrite all to TypeScript
+## 🔬 Simplify data related actions and rewrite everything to TypeScript
 **Breaking changes:**
 - `db.setItem` renamed to `db.set`
 - `db.getItem` renamed to `db.get`
@@ -35,9 +38,9 @@ npm install @lr0pb/idb
 
 All new methods support `second argument` to be an `array of items/item keys` to manipulate with mulptiple items inside one transaction
 
-All `API` docs now generated from source code by [`TypeDoc`](https://typedoc.org) and live on [GitHub Pages](https://lr0pb.github.io/IDB.js/classes/IDB.IDB)
+All `API` docs now generated from source code by [`TypeDoc`](https://typedoc.org) and live on [GitHub Pages](https://lr0pb.github.io/IDB.js/classes/IDB/IDB)
 
-Add tests for most use cases. Its source code available in [`www/mocha.test.js`](https://github.com/lr0pb/IDB.js/tree/main/www/mocha.test.js)
+Add tests for most use cases. Its source code available in [`test/mocha.test.js`](https://github.com/lr0pb/IDB.js/tree/main/test/mocha.test.js)
 
 # v.1.0.1 (02-09-2022)
 ## 📜 README.md docs update
