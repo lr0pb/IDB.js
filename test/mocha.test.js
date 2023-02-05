@@ -1,6 +1,6 @@
 import mocha from 'mocha/mocha';
 import { assert } from 'chai/index.mjs';
-import { IDB } from '../src/IDB.ts';
+import { IDB } from '/IDB.js';
 
 mocha.setup('bdd');
 //mocha.checkLeaks();

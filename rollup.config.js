@@ -1,4 +1,3 @@
-import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
 import dts from 'rollup-plugin-dts';
 import serve from 'rollup-plugin-serve';
@@ -8,56 +7,60 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
 import copy from 'rollup-plugin-copy';
 
-const isProd = process.env.PROD ? true : false;
+const isProd = process.env.DEV ? false : true;
+
+const base = {
+  input: 'lib/IDB.js',
+  output: [{
+    file: 'dist/index.js',
+    format: 'es'
+  }],
+  plugins: [
+    terser({ keep_classnames: true, compress: { ecma: 2019 } }),
+  ]
+};
+
+const dev = isProd ? {} : Object.assign(base, {
+  output: {
+    file: 'www/IDB.js',
+    format: 'es'
+  },
+  plugins: []
+});
+
+const types = {
+  input: 'lib/types/IDB.d.ts',
+  output: [{
+    file: 'dist/index.d.ts',
+    format: 'es'
+  }],
+  plugins: [dts()]
+};
+
+const tests = isProd ? {} : {
+  input: 'test/mocha.test.js',
+  output: {
+    file: 'www/mocha.test.js',
+    format: 'es'
+  },
+  plugins: [
+    json(),
+    nodeResolve(),
+    commonjs(),
+    copy({
+      targets: [
+        {src: 'test/index.html', dest: 'www'},
+        {src: 'node_modules/mocha/mocha.css', dest: 'www'}
+      ]
+    }),
+    serve({
+      contentBase: 'www', open: true,
+      host: 'localhost', port: 3080
+    }),
+    livereload('www')
+  ]
+};
 
 export default isProd
-? [{
-    // build package itself
-    input: 'src/IDB.ts',
-    output: [{
-      file: 'dist/IDB.js',
-      format: 'es'
-    }],
-    plugins: [
-      typescript(),
-      copy({
-        targets: [
-          {src: 'src/IDB.types.d.ts', dest: 'dist'}
-        ]
-      }),
-      terser({ keep_classnames: true, compress: { ecma: 2019 } }),
-    ]
-  }, {
-    // build declaration file
-    input: 'dist/IDB.d.ts',
-    output: [{
-      file: 'dist/index.d.ts',
-      format: 'es'
-    }],
-    plugins: [dts()]
-  }]
-: [{
-    // build tests and open server
-    input: 'test/mocha.test.js',
-    output: {
-      file: 'www/mocha.test.js',
-      format: 'es'
-    },
-    plugins: [
-      json(),
-      nodeResolve(),
-      commonjs(),
-      typescript(),
-      copy({
-        targets: [
-          {src: 'test/index.html', dest: 'www'},
-          {src: 'node_modules/mocha/mocha.css', dest: 'www'}
-        ]
-      }),
-      serve({
-        contentBase: 'www', open: true,
-        host: 'localhost', port: 3080
-      }),
-      livereload('www')
-    ]
-  }];
+? [base, types]
+: [dev, tests];

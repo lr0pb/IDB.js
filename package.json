@@ -12,19 +12,18 @@
     "url": "https://github.com/lr0pb/IDB.js/issues"
   },
   "homepage": "https://github.com/lr0pb/IDB.js#readme",
-  "main": "index.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "rollup -c -w -m",
-    "build": "set PROD=1 && rollup -c",
+    "dev": "set DEV=1 && npx tsc && rollup -c -w",
+    "build": "npx tsc && rollup -c",
     "doc": "npx typedoc",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-typescript": "^8.5.0",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "rollup": "^2.79.1",
