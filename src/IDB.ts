@@ -184,17 +184,17 @@ export class IDB {
 /**
 * Receive item from store by default store key
 * @param store Name of database store
-* @param itemKeys Key value to access item in store
+* @param keys Key value to access item in store
 */
-  public async get<Type, Key>(store: string, itemKeys: Key): Promise<Type | void>
-  public async get<Type, Key>(store: string, itemKeys: Key[]): Promise<(Type | void)[]>
+  public async get<Type, Key>(store: string, keys: Key): Promise<Type | void>
+  public async get<Type, Key>(store: string, keys: Key[]): Promise<(Type | void)[]>
   public async get<Type, Key>(
-    store: string, itemKeys: Key | Key[]
+    store: string, keys: Key | Key[]
   ): Promise<Type | void | (Type | void)[]> {
     const items: Type[] | void = await this._dbCall(
-      'getItem', store, 'readonly', 'get', itemKeys
+      'getItem', store, 'readonly', 'get', keys
     );
-    if (Array.isArray(itemKeys) && !Array.isArray(items)) {
+    if (Array.isArray(keys) && !Array.isArray(items)) {
       return [items];
     }
     return items?.length === 1 ? items[0] : items;
@@ -202,33 +202,36 @@ export class IDB {
 /**
 * Sugar method for getting, modifying and setting back item to the store
 * @param store Name of database store
-* @param itemKeys Key value to access item in store
+* @param keys Key value to access item in store
 * @param updateCallbacks Async function that receives item and can directly modify them
 */
   public async update<Type, Key>(
-    store: string, itemKeys: Key, updateCallbacks: UpdateCallback
+    store: string, keys: Key, updateCallbacks: UpdateCallback
   ): Promise<Type | void>
+  
   public async update<Type, Key>(
-    store: string, itemKeys: Key[], updateCallbacks: UpdateCallback
+    store: string, keys: Key[], updateCallbacks: UpdateCallback
   ): Promise<Type[] | void>
+
   public async update<Type, Key>(
-    store: string, itemKeys: Key[], updateCallbacks: UpdateCallback[]
+    store: string, keys: Key[], updateCallbacks: UpdateCallback[]
   ): Promise<Type[] | void>
+
   public async update<Type, Key>(
     store: string,
-    itemKeys: Key | Key[],
+    keys: Key | Key[],
     updateCallbacks: UpdateCallback | UpdateCallback[]
   ): Promise<Type | Type[] | void> {
-    if (!Array.isArray(itemKeys)) itemKeys = [itemKeys];
+    if (!Array.isArray(keys)) keys = [keys];
     if (!Array.isArray(updateCallbacks)) updateCallbacks = [updateCallbacks];
     const base = this._err('update', store);
     if (
       updateCallbacks.length !== 1
-      && itemKeys.length !== updateCallbacks.length
+      && keys.length !== updateCallbacks.length
     ) return this._throwError(
-      true, `${base}UpdateCallbacks length should be the same as itemKeys or should be only one UpdateCallback`
+      true, `${base}UpdateCallbacks length should be the same as keys or should be only one UpdateCallback`
     );
-    const items: (Type | void)[] | void = await this.get<Type, Key>(store, itemKeys);
+    const items: (Type | void)[] | void = await this.get<Type, Key>(store, keys);
     if (!items) return;
     const verifiedItems: Type[] = [];
     for (const item of items) {
@@ -251,7 +254,7 @@ export class IDB {
 /**
 * Receive all items from the store
 * @param store Name of database store
-* @param onData Sync function that calls every time when next item is received
+* @param onData Sync function that calls every time when next item received
 */
   public async getAll<Type>(
     store: string, onData?: DataReceivingCallback
@@ -276,11 +279,11 @@ export class IDB {
 /**
 * Delete item from store by store default key
 * @param store Name of database store
-* @param itemKeys Key value to access item in store
+* @param keys Key value to access item in store
 */
-  public async delete<Key>(store: string, itemKeys: Key | Key[]): Promise<void> {
+  public async delete<Key>(store: string, keys: Key | Key[]): Promise<void> {
     await this._dbCall(
-      'deleteItem', store, 'readwrite', 'delete', itemKeys,
+      'deleteItem', store, 'readwrite', 'delete', keys,
       async () => {
         await this._onDataUpdateCall(store, 'delete');
       }
@@ -299,26 +302,26 @@ export class IDB {
     );
   }
 /**
-* Check for item with key exist or return how much items are in the store if no itemKeys argument
+* Check for item with key exist or return how much items are in the store if no keys argument
 * @param store Name of database store
-* @param itemKeys Key value to access item in store, if no key - return items amount in the store
+* @param keys Key value to access item in store, if no key - return items amount in the store
 */
-  public async has<Type>(store: string, itemKeys: Type): Promise<boolean | void>
-  public async has<Type>(store: string, itemKeys: Type[]): Promise<boolean[] | void>
+  public async has<Key>(store: string, keys: Key): Promise<boolean | void>
+  public async has<Key>(store: string, keys: Key[]): Promise<boolean[] | void>
   public async has(store: string): Promise<number | void>
-  public async has<Type>(store: string, itemKeys?: Type): Promise<boolean | boolean[] | number | void> {
+  public async has<Key>(store: string, keys?: Key): Promise<boolean | boolean[] | number | void> {
     let resp: (number | void)[] | number | void = await this._dbCall(
-      'hasItem', store, 'readonly', 'count', itemKeys
+      'hasItem', store, 'readonly', 'count', keys
     );
-    if (!itemKeys) {
+    if (!keys) {
       return typeof resp == 'number' ? resp : 0;
     } else {
       if (!Array.isArray(resp)) resp = [resp];
-      const booleanResp = [];
+      const finalResp = [];
       for (const value of resp) {
-        booleanResp.push(value === 1 ? true : false);
+        finalResp.push(value === 1 ? true : false);
       }
-      return booleanResp.length == 1 ? booleanResp[0] : booleanResp;
+      return finalResp.length == 1 ? finalResp[0] : finalResp;
     }
   }
 /**
@@ -329,11 +332,11 @@ export class IDB {
   public async onDataUpdate(
     store: string, callback: DataUpdatedCallback
   ): Promise<UnregisterListener | void> {
-    const isReady: boolean = await this._isDbReady();
+    const isReady = await this._isDbReady();
     if (!isReady) return;
     if (!this._checkStore('onDataUpdate', store)) return;
     if (!(store in this._listeners)) this._listeners[store] = {};
-    const hash: number = Date.now();
+    const hash = Date.now();
     this._listeners[store][hash] = callback;
     return (): void => {
       delete this._listeners[store][hash];

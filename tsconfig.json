@@ -4,6 +4,7 @@
     "module": "ESNext",
     "baseUrl": "src",
     "strict": true,
+    "jsx": "react",
     "outDir": "lib",
     "moduleResolution": "node",
     "declaration": true,

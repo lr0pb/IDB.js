@@ -50,8 +50,8 @@ export type IDBAction = 'put' | 'get' | 'openCursor' | 'delete' | 'clear' | 'cou
 export type UpdateCallback = (item: any) => Promise<void>;
 /**
  * Function that call as callback in `db.getAll` for do some actions with received item. Should be ONLY **sync**
- * @param item Item that reeived from the store
- * @param index Item's position in the store
+ * @param item Item that received from the store
+ * @param index Item's position in the store (not confuse with key)
  */
 export type DataReceivingCallback = (item: any, index: number) => void;
 /**
@@ -71,14 +71,14 @@ export interface DataUpdatedInfo {
    */
   type: DataUpdatedType,
   /**
-   * If `type` is `set` provide item that was setted/updated in the store
+   * If `type` is `set` provide key of item that was setted/updated in the store
    */
   item?: any
 }
 /**
  * Callback that call when some data related changes was happened in the store
  */
-export type DataUpdatedCallback = (info: DataUpdatedInfo) => Promise<void>;
+export type DataUpdatedCallback = (info: DataUpdatedInfo) => Promise<void> | void;
 /**
  * Function to uregister `onDataUpdate` listener from the store
  */
