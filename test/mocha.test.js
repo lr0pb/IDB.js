@@ -152,13 +152,12 @@ describe('IDB', () => {
 
   it('plain db.getAll', async () => {
     const items = await db.getAll('three');
-    console.log(items);
     assert.isArray(items);
     assert.equal(items.length, 4);
   });
 
   it('db.getAll with callback', async () => {
-    const items = await db.getAll('three', (item) => {
+    await db.getAll('three', (item) => {
       assert.isTrue('prop' in item);
     });
   });

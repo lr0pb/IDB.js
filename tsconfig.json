@@ -2,11 +2,11 @@
   "compilerOptions": {
     "target": "ES2019",
     "module": "ESNext",
+    "moduleResolution": "nodenext",
     "baseUrl": "src",
     "strict": true,
     "jsx": "react",
     "outDir": "lib",
-    "moduleResolution": "node",
     "declaration": true,
     "declarationDir": "lib/types"
   }

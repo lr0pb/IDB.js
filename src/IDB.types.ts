@@ -1,13 +1,5 @@
 /**
- * Internal interface for store listeners setted with `db.onDataUpdate` method
- */
-export interface IDBListeners {
-  [store: string]: {
-    [hash: number]: DataUpdatedCallback
-  }
-}
-/**
- * Add new store to the database via that store declaration in arguments passed to IDB constructor
+ * Description of store that will be created alongside with database
  */
 export interface StoreDefinition {
   /**
@@ -15,7 +7,7 @@ export interface StoreDefinition {
    */
   name: string,
   /**
-   * Indexing method for items in this store. For expample via key or by auto incrementing new number key to new item
+   * Indexing method for items in this store. For expample via some key or by auto incrementing new number key to every new item
    */
   index: IDBObjectStoreParameters
 }
@@ -28,10 +20,6 @@ export interface IDBOptions {
    * Show additional technical log e.g. when database is ready to use
    */
   showLogs?: boolean,
-  /**
-   * Instead of throwing errors, return console.error calls
-   */
-  showErrorsAsLogs?: boolean
 }
 /**
  * Internal interface for checking that store is exist in database
@@ -59,7 +47,7 @@ export type DataReceivingCallback = (item: any, index: number) => void;
  */
 export type DataUpdatedType = 'set' | 'delete' | 'deleteAll';
 /**
- * Options passed to `DataUpdatedCallback` for `db.onDataUpdate` method
+ * Options passed to `StoreUpdatesListener` for `db.onDataUpdate` method
  */
 export interface DataUpdatedInfo {
   /**
@@ -76,9 +64,9 @@ export interface DataUpdatedInfo {
   item?: any
 }
 /**
- * Callback that call when some data related changes was happened in the store
+ * Listener that calls when some changes with data was happened in the store
  */
-export type DataUpdatedCallback = (info: DataUpdatedInfo) => Promise<void> | void;
+export type StoreUpdatesListener = (info: DataUpdatedInfo) => Promise<void> | void;
 /**
  * Function to uregister `onDataUpdate` listener from the store
  */
