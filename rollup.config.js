@@ -12,10 +12,18 @@ import livereload from 'rollup-plugin-livereload';
 const isDev = process.env.DEV ? true : false;
 const isServe = process.env.SERVE ? true : false;
 
+const terserArgs = {
+  keep_classnames: true,
+  compress: { ecma: 2019 }
+};
+const external = [
+  'react', '../IDB.js'
+];
+
 const base = {
   input: 'lib/IDB.js',
   output: [{
-    file: 'dist/index.js',
+    file: 'index.js',
     format: 'es'
   }],
   plugins: []
@@ -30,46 +38,44 @@ const lib = isServe
     }
   })
 : Object.assign(base, {
-    plugins: [
-      terser({ keep_classnames: true, compress: { ecma: 2019 } }),
-    ]
+    plugins: [terser(terserArgs)]
   });
 
 const react = isServe ? {} : {
-  input: 'lib/IDBProvider.js',
+  input: 'lib/react/index.js',
   output: {
-    file: isDev ? 'www/react.js' : 'dist/react.js',
+    file: isDev ? 'www/react.js' : 'react.js',
     format: 'es'
   },
-  external: 'react',
+  external,
   plugins: [
     babel({
       babelHelpers: 'bundled',
       exclude: 'node_modules/**/*',
       presets: ["@babel/preset-react"],
     }),
-    !isDev && terser({ compress: { ecma: 2019 } }),
+    !isDev && terser(terserArgs)
   ]
 }
 
 const types = isDev || isServe ? {} : {
   input: 'lib/types/IDB.d.ts',
   output: [{
-    file: 'dist/index.d.ts',
+    file: 'index.d.ts',
     format: 'es'
   }],
   plugins: [dts()]
 };
 
-const reactTypes = isDev || isServe ? {} : {
-  input: 'lib/types/IDBProvider.d.ts',
+const typesReact = isDev || isServe ? {} : {
+  input: 'lib/types/react/index.d.ts',
   output: [{
-    file: 'dist/react.d.ts',
+    file: 'react.d.ts',
     format: 'es'
   }],
-  external: 'react',
+  external,
   plugins: [dts()]
-}
+};
 
 const tests = isDev ? {
   input: 'test/mocha.test.js',
@@ -104,9 +110,9 @@ const server = isDev || isServe
 
 export default [
   lib,
-  types,
   react,
-  reactTypes,
+  types,
+  typesReact,
   tests,
   server,
 ].filter((item) => Object.keys(item).length);

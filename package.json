@@ -1,32 +1,29 @@
 {
   "name": "@lr0pb/idb",
-  "version": "2.0.5",
+  "version": "0.0.0-experimental-2002202302",
   "description": "Lightweight high-level promise-based wrapper for fast access to IndexedDB API",
   "author": "lr0pb",
   "license": "MIT",
+  "homepage": "https://github.com/lr0pb/IDB.js#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lr0pb/IDB.js.git"
+    "url": "https://github.com/lr0pb/IDB.js"
   },
   "bugs": {
     "url": "https://github.com/lr0pb/IDB.js/issues"
   },
-  "homepage": "https://github.com/lr0pb/IDB.js#readme",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "default": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./react": {
-      "default": "./dist/react.js",
-      "types": "./dist.react.d.ts"
-    }
+    ".": "./index.js",
+    "./react": "./react.js"
   },
   "scripts": {
     "dev": "set DEV=1 && npx tsc && rollup -c -w",
-    "build": "npx tsc && rollup -c",
+    "replace": "npx replace '../IDB' './index' react.js react.d.ts",
+    "build": "npx tsc && rollup -c && npm run replace",
     "serve": "set SERVE=1 && rollup -c -w",
     "doc": "npx typedoc",
     "prepublishOnly": "npm run build"
@@ -42,6 +39,7 @@
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "react": "^18.2.0",
+    "replace": "^1.2.2",
     "rollup": "^2.79.1",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-dts": "^4.2.3",
@@ -51,8 +49,8 @@
     "typedoc": "^0.23.15",
     "typescript": "^4.8.3"
   },
-  "peerDependencies": {
-    "react": "^18.0.0"
+  "optionalDependencies": {
+    "react": ">=17"
   },
   "keywords": [
     "IndexedDB",

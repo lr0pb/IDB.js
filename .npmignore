@@ -1,9 +1,6 @@
-.github/
-docs/
-lib/
-src/
-test/
-www/
-rollup.config.js
-tsconfig.json
-typedoc.json
+*
+**/*
+!index.js
+!index.d.ts
+!react.js
+!react.d.ts
