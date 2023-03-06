@@ -2,6 +2,11 @@ import * as React from 'react';
 import { useIDB } from './IDBProvider.js';
 import { DataLinkerArgs, processDataUpdate } from './processDataUpdate.js';
 
+/**
+ * Hook to connect items from database to your React component
+ * @param store Store from which you will get items
+ * @param param1 Parameters to connect items from database
+ */
 export function useDataLinker<T, K>(
   store: string, { initial, key }: DataLinkerArgs<T, K>
 ): T | void;

@@ -3,11 +3,11 @@
     "target": "ES2019",
     "module": "ESNext",
     "moduleResolution": "nodenext",
-    "baseUrl": "src",
     "strict": true,
     "jsx": "react",
     "outDir": "lib",
     "declaration": true,
     "declarationDir": "lib/types"
-  }
+  },
+  "include": ["src"]
 }

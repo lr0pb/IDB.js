@@ -2,7 +2,7 @@ import {
   IDBOptions, IDBAction, StoreDefinition,
   StoreContainment, UpdateCallback, DataReceivingCallback,
   DataUpdatedType, StoreUpdatesListener, UnregisterListener
-} from './IDB.types.js'
+} from './IDBTypes.js'
 
 export class IDB {
   /**

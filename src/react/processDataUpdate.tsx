@@ -1,14 +1,29 @@
 import { IDB } from '../IDB.js';
-import { DataUpdatedInfo } from '../IDB.types.js';
+import { DataUpdatedInfo } from '../IDBTypes.js';
 
 export interface DataLinkerArgs<T, K> {
+  /**
+   * Initial state while database data loading
+   */
   initial?: T,
+  /**
+   * Key to item to connect
+   */
   key?: K,
+  /**
+   * Keys arrays to items to connect
+   */
   keys?: K[],
+  /**
+   * Connect whole store to component
+   */
   getAll?: boolean,
 }
 
-type DataUpdateResponse = 'callSetter' | 'callGetData' | undefined;
+/**
+ * Internal type for processing updates
+ */
+export type DataUpdateResponse = 'callSetter' | 'callGetData' | undefined;
 
 export async function processDataUpdate<K>(
   db: IDB,

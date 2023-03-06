@@ -1,7 +1,19 @@
 {
-  "entryPoints": ["src/IDB.ts", "src/IDB.types.ts"],
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/IDB.ts", "src/IDBTypes.ts",
+    "src/react/index.ts",
+    "src/react/IDBProvider.tsx",
+    "src/react/useDataLinker.tsx",
+    "src/react/processDataUpdate.tsx"
+  ],
+  "navigationLinks": {
+    "IDB": "./classes/IDB.IDB.html",
+    "React": "./modules/react.html"
+  },
+  "cleanOutputDir": true,
   "out": "docs",
   "excludePrivate": true,
-  "excludeProtected": true,
-  "excludeExternals": true
+  "excludeExternals": true,
+  "excludeProtected": true
 }
