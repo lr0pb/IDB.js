@@ -198,10 +198,12 @@ async signForUpdates() {
 > `StoreUpdatesListener` function can be **async**
 
 # Use with React
-All React-specific things can be accessed from `@lr0pb/idb/react` import
+> React integration now in `beta`, it will be available with `2.1.0` release
+
+All React integration things can be accessed from `@lr0pb/idb/react` import
 
 ### IDBProvider
-Place a [context](https://beta.reactjs.org/learn/passing-data-deeply-with-context) provider in the main component of your app:
+[[Ref]](https://lr0pb.github.io/IDB.js/functions/react_IDBProvider.IDBProvider.html) Place a IDB [context](https://beta.reactjs.org/learn/passing-data-deeply-with-context) provider at the top component of your app:
 ```jsx
 import { IDB } from '@lr0pb/idb';
 import { IDBProvider } from '@lr0pb/idb/react';
@@ -218,7 +220,10 @@ export function App({ children }) {
 ```
 
 ### useIDB hook
-Now you can access your IDB instance everywhere in components deeper in your app
+[[Ref]](https://lr0pb.github.io/IDB.js/functions/react_IDBProvider.useIDB.html) Now you can access your IDB instance everywhere in components deeper in your tree
+
+You can use all IDB methods as usual, but pay attention that you should place all calls in either event callbacks or inside `useEffect` hook
+
 ```jsx
 import { useIDB } from '@lr0pb/idb/react';
 
@@ -236,12 +241,13 @@ export function BookInfo({ book }) {
   );
 }
 ```
-You can use all IDB methods as usual, but pay attention that you should place all calls in either event callbacks or inside `useEffect` hook
 
 ### useDataLinker hook
-> Before `2.1.0` will release this is subject to change
+> Before `2.1.0` version release this is subject to change
 
-Often you need to render some data from the database. With `useDataLinker` hook can easily access this data and be sure that component will rerender as soon as data changes
+[[Ref]](https://lr0pb.github.io/IDB.js/functions/react_useDataLinker.useDataLinker.html) You can request items from database in your component by `useDataLinker(store, params)` hook: it will return requested items and connect to the data updates
+
+As your requested items in the store added, updated or deleted, your components will automatically updated according to this changes
 ```jsx
 import { useDataLinker } from '@lr0pb/idb/react';
 
@@ -257,7 +263,16 @@ export function BooksList() {
   );
 }
 ```
-As items in store added, updated or deleted, your UI will automatically updated according to this changes
+`params` argument describes which items should be connected from database. As superset, it realises this interfase:
+```ts
+interface params<T, K> {
+  initial? T,
+  key?: K,
+  keys?: K[],
+  getAll?: boolean,
+}
+```
+Detailed description can be found on [docs site](https://lr0pb.github.io/IDB.js/functions/react_useDataLinker.useDataLinker.html)
 
 # API
 View whole detailed API documentation with all the types and overloads [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB.IDB)
@@ -265,7 +280,7 @@ View whole detailed API documentation with all the types and overloads [on docs 
 # Changes
 
 ### Notable changes
-- **2.1.0** Added integration with React
+- **2.1.0** Added integration with React: IDBProvider component, useIDB & useDataLinker hooks
 
 > View all changes during versions in [CHANGELOG](https://github.com/lr0pb/IDB.js/tree/main/CHANGELOG.md)
 

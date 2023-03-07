@@ -1,19 +1,28 @@
 import { IDB } from '../IDB.js';
 import { DataUpdatedInfo } from '../IDBTypes.js';
 
-export interface DataLinkerArgs<T, K> {
+export interface InitialArg<T> {
   /**
    * Initial state while database data loading
    */
   initial?: T,
+}
+
+export interface KeyArg<K> {
   /**
    * Key to item to connect
    */
   key?: K,
+}
+
+export interface KeysArg<K> {
   /**
    * Keys arrays to items to connect
    */
   keys?: K[],
+}
+
+export interface GetAllArg {
   /**
    * Connect whole store to component
    */
@@ -28,12 +37,15 @@ export type DataUpdateResponse = 'callSetter' | 'callGetData' | undefined;
 export async function processDataUpdate<K>(
   db: IDB,
   store: string,
-  { key, keys }: DataLinkerArgs<{}, K>,
+  { key, keys, getAll }: KeyArg<K> & KeysArg<K> & GetAllArg,
   { type, item }: DataUpdatedInfo
 ): Promise<DataUpdateResponse>
 {
   if (type === 'deleteAll') {
     return 'callSetter';
+  }
+  if (getAll) {
+    return 'callGetData';
   }
   const checkKeyUpdate = async (k?: K | K[]) => {
     if (k === undefined) return false;

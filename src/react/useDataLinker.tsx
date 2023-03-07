@@ -1,28 +1,49 @@
 import * as React from 'react';
 import { useIDB } from './IDBProvider.js';
-import { DataLinkerArgs, processDataUpdate } from './processDataUpdate.js';
+import {
+  InitialArg,
+  KeyArg,
+  KeysArg,
+  GetAllArg,
+  processDataUpdate
+} from './processDataUpdate.js';
 
 /**
  * Hook to connect items from database to your React component
  * @param store Store from which you will get items
- * @param param1 Parameters to connect items from database
+ * @param params Parameters to connect `one item` from database
  */
 export function useDataLinker<T, K>(
-  store: string, { initial, key }: DataLinkerArgs<T, K>
+  store: string, { initial, key }: InitialArg<T> & KeyArg<K>
 ): T | void;
+/**
+ * Hook to connect items from database to your React component
+ * @param store Store from which you will get items
+ * @param params Parameters to connect `selected items` from database
+ */
 export function useDataLinker<T, K>(
-  store: string, { initial, keys }: DataLinkerArgs<T, K>
+  store: string, { initial, keys }: InitialArg<T> & KeysArg<K>
 ): (T | void)[];
+/**
+ * Hook to connect items from database to your React component
+ * @param store Store from which you will get items
+ * @param params Parameters to connect `whole store` from database
+ */
 export function useDataLinker<T>(
-  store: string, { initial, getAll }: DataLinkerArgs<T, {}>
+  store: string, { initial, getAll }: InitialArg<T> & GetAllArg
 ): T[];
+/**
+ * Hook to connect items from database to your React component
+ * @param store Store from which you will get items
+ * @param params Parameters to connect `store` or `selected items` from database
+ */
 export function useDataLinker<T>(
-  store: string, { initial, keys, getAll }: DataLinkerArgs<T, {}>
+  store: string, { initial, keys, getAll }: InitialArg<T> & KeysArg<{}> & GetAllArg
 ): (T | void)[];
 
 export function useDataLinker<T, K>(
   store: string,
-  { initial, key, keys, getAll }: DataLinkerArgs<T, K> = {}
+  { initial, key, keys, getAll }: InitialArg<T> & KeyArg<K> & KeysArg<K> & GetAllArg = {}
 ): T | void | (T | void)[]
 {
   if (!store) {

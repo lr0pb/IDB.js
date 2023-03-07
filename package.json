@@ -1,6 +1,6 @@
 {
   "name": "@lr0pb/idb",
-  "version": "0.0.0-experimental-2002202302",
+  "version": "2.0.5",
   "description": "Lightweight high-level promise-based wrapper for fast access to IndexedDB API",
   "author": "lr0pb",
   "license": "MIT",
