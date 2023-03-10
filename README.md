@@ -2,11 +2,11 @@
 
 Lightweight promise-based wrapper for fast & simple access to IndexedDB API. With React integration ⚛️
 
-[![Latest release](https://img.shields.io/github/v/release/lr0pb/IDB.js?style=plastic&color=g&label=Version&logo=npm)](https://www.npmjs.com/package/@lr0pb/idb)
-[![License](https://img.shields.io/github/license/lr0pb/IDB.js?style=plastic&color=blue)](/LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/lr0pb/IDB.js?color=g&label=Version&logo=npm)](https://www.npmjs.com/package/@lr0pb/idb)
 [![Publish package](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml/badge.svg)](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml)
-[![Bundle size](https://img.shields.io/bundlephobia/minzip/@lr0pb/idb?style=plastic)](https://bundlephobia.com/package/@lr0pb/idb)
-[![Docs site](https://img.shields.io/badge/Docs%20site-%20-blue?style=plastic)](https://lr0pb.github.io/IDB.js/classes/IDB.IDB.html)
+[![Bundle size](https://img.shields.io/bundlephobia/minzip/@lr0pb/idb)](https://bundlephobia.com/package/@lr0pb/idb)
+[![Docs site](https://img.shields.io/badge/Docs%20site-%20-blue?color=orange)](https://lr0pb.github.io/IDB.js/classes/IDB.IDB.html)
+[![License](https://img.shields.io/github/license/lr0pb/IDB.js?color=blue)](/LICENSE)
 
 ### Table of content
 1. [Usage](#usage)
