@@ -1,10 +1,12 @@
 # 📦 IDB.js
 
-Lightweight high-level promise-based wrapper for fast access to IndexedDB API. With React integration ⚛️
+Lightweight promise-based wrapper for fast & simple access to IndexedDB API. With React integration ⚛️
 
-[![Latest release](https://img.shields.io/github/v/release/lr0pb/IDB.js?&color=g&label=Version&logo=npm)](https://www.npmjs.com/package/@lr0pb/idb)
+[![Latest release](https://img.shields.io/github/v/release/lr0pb/IDB.js?style=plastic&color=g&label=Version&logo=npm)](https://www.npmjs.com/package/@lr0pb/idb)
+[![License](https://img.shields.io/github/license/lr0pb/IDB.js?style=plastic&color=blue)](/LICENSE)
 [![Publish package](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml/badge.svg)](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml)
-[![Bundle size](https://img.shields.io/bundlephobia/minzip/@lr0pb/idb)](https://bundlephobia.com/package/@lr0pb/idb)
+[![Bundle size](https://img.shields.io/bundlephobia/minzip/@lr0pb/idb?style=plastic)](https://bundlephobia.com/package/@lr0pb/idb)
+[![Docs site](https://img.shields.io/badge/Docs%20site-%20-blue?style=plastic)](https://lr0pb.github.io/IDB.js/classes/IDB.IDB.html)
 
 ### Table of content
 1. [Usage](#usage)
@@ -288,6 +290,8 @@ View whole detailed API documentation with all the types and overloads [on docs 
 IDB.js distributed under the [MIT](https://github.com/lr0pb/IDB.js/tree/main/LICENSE) license
 
 # Develop
-Clone repo on your machine and run `npm i`
+As this project initially was a data layer part of my another project, I maintain it preferably for those project, but any issues and pull requests are welcome!
 
-Write tests in [`test/mocha.test.js`](https://github.com/lr0pb/IDB.js/blob/main/test/mocha.test.js) and run them via `npm run dev` (will start a development server and open default browser window with tests page)
+For start to develop IDB: clone this repo on your machine and run `npm i`
+
+Write tests in [`test/mocha.test.js`](https://github.com/lr0pb/IDB.js/blob/main/test/mocha.test.js) and run them via `npm test` (will start a development server and open default browser window with tests page)
