@@ -14,7 +14,6 @@ Lightweight promise-based wrapper for fast & simple access to IndexedDB API. Wit
 1. [Use with React](#use-with-react)
 1. [API](#api)
 1. [Changes](#changes)
-1. [License](#license)
 1. [Develop](#develop)
 
 # Usage
@@ -285,9 +284,6 @@ View whole detailed API documentation with all the types and overloads [on docs 
 - **2.1.0** Added integration with React: IDBProvider component, useIDB & useDataLinker hooks
 
 > View all changes during versions in [CHANGELOG](https://github.com/lr0pb/IDB.js/tree/main/CHANGELOG.md)
-
-# License
-IDB.js distributed under the [MIT](https://github.com/lr0pb/IDB.js/tree/main/LICENSE) license
 
 # Develop
 As this project initially was a data layer part of my another project, I maintain it preferably for those project, but any issues and pull requests are welcome!

@@ -8,8 +8,8 @@
     "src/react/processDataUpdate.tsx"
   ],
   "navigationLinks": {
-    "IDB": "./classes/IDB.IDB.html",
-    "React": "./modules/react.html"
+    "IDB": "/classes/IDB.IDB.html",
+    "React": "/modules/react.html"
   },
   "cleanOutputDir": true,
   "out": "docs",

@@ -349,7 +349,7 @@ export class IDB {
     }
     const hash = Date.now();
     this._listeners[store][hash] = listener;
-    return (): void => {
+    return () => {
       delete this._listeners[store][hash];
     };
   }
