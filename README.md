@@ -1,6 +1,6 @@
 # 📦 IDB.js
 
-Lightweight promise-based wrapper for fast & simple access to IndexedDB API
+Lightweight promise-based wrapper for fast & simple access to IndexedDB API. With React integration ⚛️
 
 [![Latest release](https://img.shields.io/github/v/release/lr0pb/IDB.js?color=g&label=Version&logo=npm)](https://www.npmjs.com/package/@lr0pb/idb)
 [![Publish package](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml/badge.svg)](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml)
@@ -11,6 +11,7 @@ Lightweight promise-based wrapper for fast & simple access to IndexedDB API
 ### Table of content
 1. [Usage](#usage)
 1. [Examples](#examples)
+1. [Use with React](#use-with-react)
 1. [API](#api)
 1. [Changes](#changes)
 1. [Develop](#develop)
@@ -62,6 +63,11 @@ Operate with data:
 Other helpful methods:
 - [`has()`](#check-that-store-contain-items)
 - [`onDataUpdate()`](#listen-for-store-updates)
+
+Use with React:
+- [`IDBProvider` component](#idbprovider)
+- [`useIDB` hook](#useidb-hook)
+- [`useDataLinker` hook](#usedatalinker-hook)
 
 ### TypeSctipt support
 IDB come out-of-the-box with types desclaration.
@@ -192,10 +198,91 @@ async signForUpdates() {
 ```
 > `StoreUpdatesListener` function can be **async**
 
+# Use with React
+> React integration now in `beta`, it will be available with `2.2.0` release
+
+All React integration things can be accessed from `@lr0pb/idb/react` import
+
+### IDBProvider
+[[Ref]](https://lr0pb.github.io/IDB.js/functions/react_IDBProvider.IDBProvider.html) Place a IDB [context](https://beta.reactjs.org/learn/passing-data-deeply-with-context) provider at the top component of your app:
+```jsx
+import { IDB } from '@lr0pb/idb';
+import { IDBProvider } from '@lr0pb/idb/react';
+
+const db = new IDB('library', 2, ...);
+
+export function App({ children }) {
+  return (
+    <IDBProvider db={db}>
+      {children}
+    </IDBProvider>
+  );
+}
+```
+
+### useIDB hook
+[[Ref]](https://lr0pb.github.io/IDB.js/functions/react_IDBProvider.useIDB.html) Now you can access your IDB instance everywhere in components deeper in your tree
+
+You can use all IDB methods as usual, but pay attention that you should place all calls in either event callbacks or inside `useEffect` hook
+
+```jsx
+import { useIDB } from '@lr0pb/idb/react';
+
+export function BookInfo({ book }) {
+  const db = useIDB();
+  const addBook = async () => {
+    await db.set('books', book);
+  };
+  return (
+    <div className='book'>
+      <img src={book.image} />
+      <h3>{book.title}</h3>
+      <button onClick={addBook}>📙 Add book</button>
+    </div>
+  );
+}
+```
+
+### useDataLinker hook
+> Before `2.2.0` version release this is subject to change
+
+[[Ref]](https://lr0pb.github.io/IDB.js/functions/react_useDataLinker.useDataLinker.html) You can request items from database in your component by `useDataLinker(store, params)` hook: it will return requested items and connect to the data updates
+
+As your requested items in the store added, updated or deleted, your components will automatically updated according to this changes
+```jsx
+import { useDataLinker } from '@lr0pb/idb/react';
+
+export function BooksList() {
+  const books = useDataLinker('books', { getAll: true });
+  if (!books.length) {
+    return <h3>There are no books</h3>;
+  }
+  return (
+    {books.map((book) => {
+      return <BookInfo book={book} key={book.id} />;
+    })}
+  );
+}
+```
+`params` argument describes which items should be connected from database. As superset, it realises this interfase:
+```ts
+interface params<T, K> {
+  initial? T,
+  key?: K,
+  keys?: K[],
+  getAll?: boolean,
+}
+```
+Detailed description can be found on [docs site](https://lr0pb.github.io/IDB.js/functions/react_useDataLinker.useDataLinker.html)
+
 # API
 View whole detailed API documentation with all the types and overloads [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB.IDB)
 
 # Changes
+
+### Notable changes
+- **2.2.0** Added integration with React: `IDBProvider` component, `useIDB` & `useDataLinker` hooks
+- **2.1.0** Explicitly throw errors when something goes wrong in IDB methods call
 
 > View all changes during versions in [CHANGELOG](https://github.com/lr0pb/IDB.js/tree/main/CHANGELOG.md)
 
