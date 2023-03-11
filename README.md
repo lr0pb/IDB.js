@@ -294,4 +294,18 @@ As this project initially was a data layer part of my another project, I maintai
 
 For start to develop IDB: clone this repo on your machine and run `npm i`
 
-Write tests in [`test/mocha.test.js`](https://github.com/lr0pb/IDB.js/blob/main/test/mocha.test.js) and run them via `npm test` (will start a development server and open default browser window with tests page)
+Write your code and create tests for it in [`test` directory](https://github.com/lr0pb/IDB.js/blob/main/test/). Each `.test.js` file should be structered as shown below:
+
+```js
+import { assert } from 'chai/index.mjs';
+
+export default function (container, checkStore) {
+  it('test', ...);
+  ...
+}
+```
+Every call to IDB should be accessed through `container.db` variable. `checkStore(store, count)` is helper function to check amount of items in store.
+
+After new test file created, it should be imported inside [`test/__index__.test.js`](https://github.com/lr0pb/IDB.js/blob/main/test/__index__.test.js) file and passed to `tests` object to automatically run with other tests. To disable some test suite - comment its desclaration within `tests` object.
+
+Run tests via `npm test` - it will start a development server and open default browser window with tests page

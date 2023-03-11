@@ -78,9 +78,9 @@ const typesReact = isDev || isServe ? {} : {
 };
 
 const tests = isDev ? {
-  input: 'test/mocha.test.js',
+  input: 'test/__index__.test.js',
   output: {
-    file: 'www/mocha.test.js',
+    file: 'www/__index__.test.js',
     format: 'es'
   },
   plugins: [
@@ -95,8 +95,8 @@ const server = isDev || isServe
     plugins: [
       copy({
         targets: [
-          {src: 'test/index.html', dest: 'www'},
-          {src: 'node_modules/mocha/mocha.css', dest: 'www'}
+          { src: 'test/__index__.html', dest: 'www', rename: 'index.html' },
+          { src: 'node_modules/mocha/mocha.css', dest: 'www' }
         ]
       }),
       serve({
