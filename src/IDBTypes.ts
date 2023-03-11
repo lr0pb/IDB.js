@@ -15,7 +15,6 @@ export interface StoreDefinition {
  * Additional options for IDB class instance
  */
 export interface IDBOptions {
-  [inxed: string]: boolean | undefined,
   /**
    * Show additional technical log e.g. when database is ready to use
    */
@@ -60,6 +59,7 @@ export interface DataUpdatedInfo {
   type: DataUpdatedType,
   /**
    * If `type` is `set` provide key of item that was setted/updated in the store
+   * @deprecated This field will change its name to `key` in next minor release
    */
   item?: any
 }

@@ -1,15 +1,10 @@
 {
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": [
-    "src/IDB.ts", "src/IDBTypes.ts",
-    "src/react/index.ts",
-    "src/react/IDBProvider.tsx",
-    "src/react/useDataLinker.tsx",
-    "src/react/processDataUpdate.tsx"
+    "src/IDB.ts", "src/IDBTypes.ts"
   ],
   "navigationLinks": {
-    "IDB": "/classes/IDB.IDB.html",
-    "React": "/modules/react.html"
+    "IDB": "/classes/IDB.IDB.html"
   },
   "cleanOutputDir": true,
   "out": "docs",

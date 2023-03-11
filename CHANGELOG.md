@@ -1,3 +1,10 @@
+# v2.1.0 (11-03-2023)
+## 🛠️ Accidents create progress
+While working on React integration I accidentally push experimental version as `latest` tag on NPM. So, I decide to cut of React content from this release and push normal `2.1.0` over expermental one
+- update all type parameters from `Type` and `Key` to short version `T` & `K`
+- remove `showErrorsAsLogs` property from `IDBOptions`
+- **Important:** remove `| void` part from method response types (if this isn't the behavior of the method) and this methods now *just* throws errors when something is wrong
+
 # v2.0.5 (31-01-2023)
 ## 📝 Fixes in package distribution
 - remove tests output folder from package build

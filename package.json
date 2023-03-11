@@ -1,7 +1,7 @@
 {
   "name": "@lr0pb/idb",
-  "version": "2.0.5",
-  "description": "📦 Lightweight promise-based wrapper for fast & simple access to IndexedDB API. With React integration ⚛️",
+  "version": "2.1.0",
+  "description": "📦 Lightweight promise-based wrapper for fast & simple access to IndexedDB API",
   "author": "lr0pb",
   "license": "MIT",
   "homepage": "https://github.com/lr0pb/IDB.js#readme",
@@ -16,13 +16,11 @@
     "IndexedDB", "idb", "promise", "typescript", "react"
   ],
   "sideEffects": false,
-  "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
   "exports": {
-    ".": "./index.js",
-    "./react": "./react.js"
+    ".": "./index.js"
   },
   "scripts": {
     "test": "set DEV=1 && npx tsc && rollup -c -w",
@@ -52,8 +50,5 @@
     "rollup-plugin-terser": "^7.0.2",
     "typedoc": "^0.24.0-beta.2",
     "typescript": "^4.8.3"
-  },
-  "peerDependencies": {
-    "react": ">=17"
   }
 }
