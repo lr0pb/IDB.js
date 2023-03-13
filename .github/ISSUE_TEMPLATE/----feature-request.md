@@ -1,5 +1,5 @@
 ---
-name: "\U0001F3D7️ Feature request"
+name: "🏗️ Feature request"
 about: Suggest an idea for the project
 title: ''
 labels: feature
@@ -7,14 +7,11 @@ assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-<!-- A clear and concise description of what the problem is -->
+### What is the reason for this feature?
 
-**Describe the solution you'd like**
-<!-- A clear and concise description of what you want to happen -->
 
-**Describe alternatives you've considered**
-<!-- A clear and concise description of any alternative solutions or features you've considered -->
+### How do you think this feature should be implemented?
 
-**Additional context**
-<!-- Add any other context or screenshots about the feature request here -->
+
+### If you have some additional thoughts:
+
