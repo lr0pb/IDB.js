@@ -1,7 +1,7 @@
 import type {
   IDBOptions, IDBAction, StoreDefinition,
   StoreContainment, UpdateCallback, DataReceivingCallback,
-  DataUpdatedType, StoreUpdatesListener, UnregisterListener,
+  DataUpdateType, DataUpdateListener, UnregisterListener,
   UpdatedDataListener,
 } from './IDBTypes.js'
 
@@ -9,7 +9,7 @@ export class IDB {
   /**
    * Storage for listeners setted with `db.onDataUpdate` method
    */
-  private readonly _listeners: Record<string, Record<number, StoreUpdatesListener>>;
+  private readonly _listeners: Record<string, Record<number, DataUpdateListener<any>>>;
   /**
    * IDB open request object https://w3c.github.io/IndexedDB/#open-requests
    */
@@ -106,7 +106,7 @@ export class IDB {
   private _checkStore(name: string, store: string): boolean {
     if (!this.db.objectStoreNames.contains(store)) {
       throw new Error(
-        `${this._err(name)}database haven't "${store}" store`
+        `${this._err(name, store)}database haven't "${store}" store`
       );
     }
     return true;
@@ -151,12 +151,14 @@ export class IDB {
     });
   }
 
-  private async _onDataUpdateCall(
-    store: string, type: DataUpdatedType, item?: any
+  private async _emitDataUpdateListeners<K>(
+    store: string, type: DataUpdateType, keys: K[], item?: any
   ): Promise<void> {
     if (!(store in this._listeners)) return;
     for (let hash in this._listeners[store]) {
-      await this._listeners[store][hash]({store, type, item});
+      await this._listeners[store][hash]({
+        store, type, keys, item
+      });
     }
   }
 
@@ -172,13 +174,15 @@ export class IDB {
   public async set<T>(
     store: string, items: T | T[]
   ): Promise<boolean | boolean[]> {
+    const updatedKeys: any[] = [];
     const resp: boolean[] = await this._dbCall(
       'setItem', store, 'readwrite', 'put', items,
-      async (item: T) => {
-        await this._onDataUpdateCall(store, 'set', item);
+      async (key: any) => {
+        updatedKeys.push(key);
         return true; // TODO: If QuotaExceedError happened, catch it and return false;
       }
     );
+    this._emitDataUpdateListeners(store, 'set', updatedKeys, updatedKeys);
     return resp?.length == 1 ? resp[0] : resp;
   }
 
@@ -294,11 +298,10 @@ export class IDB {
 */
   public async delete<K>(store: string, keys: K | K[]): Promise<void> {
     await this._dbCall(
-      'deleteItem', store, 'readwrite', 'delete', keys,
-      async () => {
-        await this._onDataUpdateCall(store, 'delete');
-      }
+      'deleteItem', store, 'readwrite', 'delete', keys
     );
+    if (!Array.isArray(keys)) keys = [keys];
+    this._emitDataUpdateListeners<K>(store, 'delete', keys);
   }
 
 /**
@@ -307,11 +310,9 @@ export class IDB {
 */
   public async deleteAll(store: string): Promise<void> {
     await this._dbCall(
-      'deleteAll', store, 'readwrite', 'clear', null,
-      async () => {
-        await this._onDataUpdateCall(store, 'deleteAll');
-      }
+      'deleteAll', store, 'readwrite', 'clear', null
     );
+    this._emitDataUpdateListeners(store, 'deleteAll', []);
   }
 
 /**
@@ -346,8 +347,8 @@ export class IDB {
 * @param store Name of database store
 * @param listener Async function that calls every time when 'set', 'delete' and 'deleteAll' operations in the store happens
 */
-  public async onDataUpdate(
-    store: string, listener: StoreUpdatesListener
+  public async onDataUpdate<K>(
+    store: string, listener: DataUpdateListener<K>
   ): Promise<UnregisterListener> {
     await this._isDbReady();
     this._checkStore('onDataUpdate', store);
@@ -361,6 +362,12 @@ export class IDB {
     };
   }
 
+/**
+* Set a listener that follow updates happened only with the selected items in store
+* @param store Name of database store
+* @param listener Async function that calls every time when updates happened with selected items
+* @param keys Key value to follow only selected items, if no keys - follow every data update
+*/
   public async followDataUpdates<T, K>(
     store: string,
     listener: UpdatedDataListener<T>,
@@ -378,27 +385,20 @@ export class IDB {
     keys?: K | K[]
   ): Promise<UnregisterListener> {
     await this._isDbReady();
-    this._checkStore('onDataUpdate', store);
-    const keysArr: K[] | void = !keys
-    ? undefined
-    : Array.isArray(keys) ? keys : [keys];
-    const unregister = await this.onDataUpdate(store, async ({ type, item }) => {
+    this._checkStore('followDataUpdates', store);
+    const unregister = await this.onDataUpdate<K>(store, async ({
+      type, keys: updatedKeys
+    }) => {
+      console.log(updatedKeys);
+      
       if (type === 'deleteAll') {
-        return listener(undefined);
+        return listener(!keys || Array.isArray(keys) ? [] : undefined);
       }
-      if (
-        // update if no keys = follow all store updates
-        !keysArr ||
-        // update if followed key item was updated
-        (type === 'set' && keysArr.includes(item)) ||
-        // update if followed key item was deleted
-        ((await this.has<K>(store, keysArr)).includes(false))
-      ) {
-        const resp: T | void | (T | void)[] = !keys
-        ? await this.getAll<T>(store)
-        : await this.get<T, K>(store, keys);
+      if (!keys) {
+        const resp = await this.getAll<T>(store);
         return listener(resp);
       }
+      // TODO: checks for selected items updated
     });
     return unregister;
   }

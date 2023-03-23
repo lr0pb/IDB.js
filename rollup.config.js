@@ -1,6 +1,7 @@
 import { terser } from 'rollup-plugin-terser';
 import babel from '@rollup/plugin-babel';
 import dts from 'rollup-plugin-dts';
+import typescript from '@rollup/plugin-typescript';
 
 import json from '@rollup/plugin-json';
 import nodeResolve from '@rollup/plugin-node-resolve';
@@ -29,17 +30,21 @@ const base = {
   plugins: []
 };
 
-const lib = isServe
-? {} : isDev
-? Object.assign(base, {
+let lib = {};
+if (!isServe && isDev) {
+  lib = {
+    input: 'src/IDB.ts',
     output: {
       file: 'www/IDB.js',
       format: 'es'
-    }
-  })
-: Object.assign(base, {
+    },
+    plugins: [typescript()]
+  };
+} else if (!isServe) {
+  lib = Object.assign(base, {
     plugins: [terser(terserArgs)]
   });
+}
 
 const react = isServe ? {} : {
   input: 'lib/react/index.js',
@@ -90,23 +95,21 @@ const tests = isDev ? {
   ]
 } : {};
 
-const server = isDev || isServe
-? Object.assign(base, {
-    plugins: [
-      copy({
-        targets: [
-          { src: 'test/__index__.html', dest: 'www', rename: 'index.html' },
-          { src: 'node_modules/mocha/mocha.css', dest: 'www' }
-        ]
-      }),
-      serve({
-        contentBase: 'www', open: true,
-        host: 'localhost', port: 3080
-      }),
-      livereload('www')
-    ]
-  })
-: {};
+if (isDev || isServe) {
+  lib.plugins.push(...[
+    copy({
+      targets: [
+        { src: 'test/__index__.html', dest: 'www', rename: 'index.html' },
+        { src: 'node_modules/mocha/mocha.css', dest: 'www' }
+      ]
+    }),
+    serve({
+      contentBase: 'www', open: true,
+      host: 'localhost', port: 3080
+    }),
+    livereload('www')
+  ]);
+}
 
 export default [
   lib,
@@ -114,5 +117,4 @@ export default [
   types,
   typesReact,
   tests,
-  server,
 ].filter((item) => Object.keys(item).length);
