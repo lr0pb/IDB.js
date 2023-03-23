@@ -71,3 +71,5 @@ export type StoreUpdatesListener = (info: DataUpdatedInfo) => Promise<void> | vo
  * Function to uregister `onDataUpdate` listener from the store
  */
 export type UnregisterListener = () => void;
+
+export type UpdatedDataListener<T> = (items: T | void | (T | void)[]) => Promise<void> | void;

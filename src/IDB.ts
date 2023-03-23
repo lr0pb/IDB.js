@@ -1,7 +1,8 @@
-import {
+import type {
   IDBOptions, IDBAction, StoreDefinition,
   StoreContainment, UpdateCallback, DataReceivingCallback,
-  DataUpdatedType, StoreUpdatesListener, UnregisterListener
+  DataUpdatedType, StoreUpdatesListener, UnregisterListener,
+  UpdatedDataListener,
 } from './IDBTypes.js'
 
 export class IDB {
@@ -167,6 +168,7 @@ export class IDB {
 */
   public async set<T>(store: string, items: T): Promise<boolean>;
   public async set<T>(store: string, items: T[]): Promise<boolean[]>;
+  public async set<T>(store: string, items: T | T[]): Promise<boolean | boolean[]>;
   public async set<T>(
     store: string, items: T | T[]
   ): Promise<boolean | boolean[]> {
@@ -187,9 +189,10 @@ export class IDB {
 */
   public async get<T, K>(store: string, keys: K): Promise<T | void>
   public async get<T, K>(store: string, keys: K[]): Promise<(T | void)[]>
+  public async get<T, K>(store: string, keys: K | K[]): Promise<T | void | (T | void)[]>
   public async get<T, K>(
     store: string, keys: K | K[]
-  ): Promise<T | (T | void)[]> {
+  ): Promise<T | void | (T | void)[]> {
     const items: T[] = await this._dbCall(
       'getItem', store, 'readonly', 'get', keys
     );
@@ -215,6 +218,10 @@ export class IDB {
 
   public async update<T, K>(
     store: string, keys: K[], updateCallbacks: UpdateCallback[]
+  ): Promise<T[]>
+
+  public async update<T, K>(
+    store: string, keys: K | K[], updateCallbacks: UpdateCallback | UpdateCallback[]
   ): Promise<T[]>
 
   public async update<T, K>(
@@ -314,6 +321,7 @@ export class IDB {
 */
   public async has<K>(store: string, keys: K): Promise<boolean>
   public async has<K>(store: string, keys: K[]): Promise<boolean[]>
+  public async has<K>(store: string, keys: K | K[]): Promise<boolean | boolean[]>
   public async has(store: string): Promise<number>
   public async has<K>(
     store: string, keys?: K
@@ -343,7 +351,6 @@ export class IDB {
   ): Promise<UnregisterListener> {
     await this._isDbReady();
     this._checkStore('onDataUpdate', store);
-
     if (!(store in this._listeners)) {
       this._listeners[store] = {};
     }
@@ -352,5 +359,47 @@ export class IDB {
     return () => {
       delete this._listeners[store][hash];
     };
+  }
+
+  public async followDataUpdates<T, K>(
+    store: string,
+    listener: UpdatedDataListener<T>,
+    keys?: K | K[]
+  ): Promise<UnregisterListener>
+
+  public async followDataUpdates<T>(
+    store: string,
+    listener: UpdatedDataListener<T>,
+  ): Promise<UnregisterListener>
+
+  public async followDataUpdates<T, K>(
+    store: string,
+    listener: UpdatedDataListener<T>,
+    keys?: K | K[]
+  ): Promise<UnregisterListener> {
+    await this._isDbReady();
+    this._checkStore('onDataUpdate', store);
+    const keysArr: K[] | void = !keys
+    ? undefined
+    : Array.isArray(keys) ? keys : [keys];
+    const unregister = await this.onDataUpdate(store, async ({ type, item }) => {
+      if (type === 'deleteAll') {
+        return listener(undefined);
+      }
+      if (
+        // update if no keys = follow all store updates
+        !keysArr ||
+        // update if followed key item was updated
+        (type === 'set' && keysArr.includes(item)) ||
+        // update if followed key item was deleted
+        ((await this.has<K>(store, keysArr)).includes(false))
+      ) {
+        const resp: T | void | (T | void)[] = !keys
+        ? await this.getAll<T>(store)
+        : await this.get<T, K>(store, keys);
+        return listener(resp);
+      }
+    });
+    return unregister;
   }
 };
