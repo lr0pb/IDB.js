@@ -403,9 +403,9 @@ export class IDB {
     const unregister = await this.onDataUpdate<K>(store, async ({
       type, keys: updatedKeys
     }) => {
-      const getAll = !keys ||
-        (typeof keys === 'object' && !Array.isArray(keys) &&
-        'getAll' in keys && keys.getAll === true);
+      const getAll = !keys //||
+        // (typeof keys === 'object' && !Array.isArray(keys) &&
+        // 'getAll' in keys && keys.getAll === true);
       if (type === 'deleteAll') {
         return listener(getAll || Array.isArray(keys) ? [] : undefined);
       }
