@@ -1,23 +1,17 @@
 ---
-name: "\U0001F6E0️ Bug report"
-about: Report about founded bugs
+name: "🛠️ Bug report"
+about: Report about founded problems
 title: ''
 labels: bug
 assignees: ''
 
 ---
 
-**Method that spawn the bug**
-<!-- Provide name of method that spawns this bug -->
+### Method in which this bug occurs
 
-**Describe the bug**
-<!-- A clear and concise description of what the bug is -->
 
-**To Reproduce**
-<!-- Describe how to reproduce this bug, if it is complicated to describe in previous section -->
+### What's going on wrong/How to reproduce?
 
-**Expected behavior**
-<!-- A clear and concise description of what you expected to happen -->
 
-**Additional context**
-<!-- Add any other context about the problem here -->
+### How do you expect it should work/How do you think its gonna be fixed?
+

@@ -11,6 +11,7 @@ jobs:
       contents: write
     steps:
       - name: Automatic Release Creation
-        uses: lr0pb/generate-release@v0.1.0
+        uses: lr0pb/generate-release@v0.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fallback-text: 'No text'
