@@ -1,5 +1,5 @@
 import { IDB } from '../IDB.js';
-import { DataUpdatedInfo } from '../IDBTypes.js';
+import { DataUpdateInfo } from '../IDBTypes.js';
 
 export interface InitialArg<T> {
   /**
@@ -38,7 +38,7 @@ export async function processDataUpdate<K>(
   db: IDB,
   store: string,
   { key, keys, getAll }: KeyArg<K> & KeysArg<K> & GetAllArg,
-  { type, item }: DataUpdatedInfo
+  { type, item }: DataUpdateInfo<void>
 ): Promise<DataUpdateResponse>
 {
   if (type === 'deleteAll') {

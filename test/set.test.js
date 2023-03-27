@@ -30,10 +30,10 @@ export default function (container, checkStore) {
   });
 
   it('set multimple items at once', async () => {
-    await container.db.set('two', [
-      item1, item2,
-    ]);
-    await checkStore('two', 2);
+    const items = [ item1, item2 ];
+    await container.db.set('two', items);
+    const check = await container.db.has('two', items.map((item) => item.id));
+    assert.deepEqual(check, Array(items.length).fill(true));
   });
 
   it('container.db.has for item in index store', async () => {

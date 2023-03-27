@@ -1,7 +1,7 @@
 {
   "name": "@lr0pb/idb",
   "version": "2.1.3",
-  "description": "📦 Lightweight promise-based wrapper for fast & simple access to IndexedDB API",
+  "description": "📦 Lightweight promise-based wrapper for fast & simple access to IndexedDB API. With React integration ⚛️",
   "author": "lr0pb",
   "license": "MIT",
   "homepage": "https://github.com/lr0pb/IDB.js#readme",
@@ -13,22 +13,28 @@
     "url": "https://github.com/lr0pb/IDB.js/issues"
   },
   "keywords": [
-    "IndexedDB", "idb", "promise", "typescript", "react"
+    "IndexedDB",
+    "idb",
+    "promise",
+    "typescript",
+    "react"
   ],
   "sideEffects": false,
   "main": "./index.js",
   "module": "./index.js",
   "types": "./index.d.ts",
   "exports": {
-    ".": "./index.js"
+    ".": "./index.js",
+    "./react": "./react.js"
   },
   "scripts": {
-    "test": "set DEV=1 && npx tsc && rollup -c -w",
+    "test": "set DEV=1 && rollup -c -w",
     "replace": "npx replace '../IDB' './index' react.js react.d.ts",
     "build": "npx tsc && rollup -c && npm run replace",
     "serve": "set SERVE=1 && rollup -c -w",
     "doc": "npx typedoc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "experimental": "npm publish --access public --tag experimental"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
@@ -37,6 +43,9 @@
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1",
     "@types/react": "^18.0.28",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
@@ -48,7 +57,11 @@
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-serve": "^2.0.1",
     "rollup-plugin-terser": "^7.0.2",
+    "tslib": "^2.5.0",
     "typedoc": "^0.24.0-beta.2",
     "typescript": "^4.8.3"
+  },
+  "peerDependencies": {
+    "react": ">=18"
   }
 }
