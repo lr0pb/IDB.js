@@ -365,40 +365,61 @@ export class IDB {
 /**
 * Set a listener that follow updates happened only with the selected items in store
 * @param store Name of database store
+* @param keys Key of item to follow / array of item keys to follow, if no - fallback to all store items / explicit { getAll: true } to follow all changes in store
 * @param listener Async function that calls every time when updates happened with selected items
-* @param keys Key value to follow only selected items, if no keys - follow every data update
+* @example `Follow one item:`
+* db.followDataUpdates<ItemType, number>('store', 123, callback)
+* @example `Follow multiple items:`
+* db.followDataUpdates<ItemType, number>('store', [123, 124], callback)
+* `if no keys array presented - fallback to follow all changes in store`
+* @example `Explicit follow all changes in store:`
+* db.followDataUpdates<ItemType>('store', { getAll: true }, callback)
 */
   public async followDataUpdates<T, K>(
     store: string,
-    listener: UpdatedDataListener<T>,
-    keys?: K | K[]
+    keys: K,
+    listener: UpdatedDataListener<T | void>
+  ): Promise<UnregisterListener>
+
+  public async followDataUpdates<T, K>(
+    store: string,
+    keys: K[] | void,
+    listener: UpdatedDataListener<(T | void)[]>
   ): Promise<UnregisterListener>
 
   public async followDataUpdates<T>(
     store: string,
-    listener: UpdatedDataListener<T>,
+    keys: { getAll: true },
+    listener: UpdatedDataListener<T[]>
   ): Promise<UnregisterListener>
 
   public async followDataUpdates<T, K>(
     store: string,
-    listener: UpdatedDataListener<T>,
-    keys?: K | K[]
+    keys: K | K[] | void,
+    listener: UpdatedDataListener<T | void | (T | void)[]>
   ): Promise<UnregisterListener> {
     await this._isDbReady();
     this._checkStore('followDataUpdates', store);
     const unregister = await this.onDataUpdate<K>(store, async ({
       type, keys: updatedKeys
     }) => {
-      console.log(updatedKeys);
-      
+      const getAll = !keys ||
+        (typeof keys === 'object' && !Array.isArray(keys) &&
+        'getAll' in keys && keys.getAll === true);
       if (type === 'deleteAll') {
-        return listener(!keys || Array.isArray(keys) ? [] : undefined);
+        return listener(getAll || Array.isArray(keys) ? [] : undefined);
       }
-      if (!keys) {
+      if (getAll) {
         const resp = await this.getAll<T>(store);
         return listener(resp);
       }
-      // TODO: checks for selected items updated
+      const keysArray: K[] = !Array.isArray(keys) ? [keys] : keys;
+      for (const key of keysArray) {
+        if (updatedKeys.includes(key)) {
+          const resp = await this.get<T, K>(store, keys);
+          return listener(resp);
+        }
+      }
     });
     return unregister;
   }

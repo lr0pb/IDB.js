@@ -88,4 +88,4 @@ export type UnregisterListener = () => void;
 /**
  * Listener that calls when updates happened with selected items
  */
-export type UpdatedDataListener<T> = (items: T | void | (T | void)[]) => Promise<void> | void;
+export type UpdatedDataListener<R> = (items: R) => Promise<void> | void;

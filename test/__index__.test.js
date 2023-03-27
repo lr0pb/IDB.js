@@ -8,7 +8,9 @@ import set from './set.test';
 import get from './get.test';
 import update from './update.test';
 import getAll from './getAll.test';
-import IDBdelete from './delete.test';
+// using underscore at the end because regular `delete` is reserved word
+import delete_ from './delete.test';
+import followDataUpdates from './followDataUpdates.test';
 
 // All test files import functions should be placed in this object
 // to be automatically called
@@ -18,7 +20,8 @@ const tests = {
   get,
   update,
   getAll,
-  IDBdelete,
+  delete_,
+  followDataUpdates,
 };
 
 // Test db object is stored in this container object
@@ -38,10 +41,10 @@ mocha.setup('bdd');
 before('open database', async () => {
   try {
     container.db = new IDB('database', 1, [
-      { name: 'one', index: {autoIncrement: true} },
-      { name: 'two', index: {keyPath: 'id'} },
-      { name: 'three', index: {keyPath: 'id'} },
-      { name: 'six', index: {autoIncrement: true} },
+      { name: 'one', index: { autoIncrement: true } },
+      { name: 'two', index: { keyPath: 'id' } },
+      { name: 'three', index: { keyPath: 'id' } },
+      { name: 'six', index: { autoIncrement: true } },
     ]);
   } catch (err) {
     should.not.exist(err);
