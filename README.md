@@ -1,6 +1,6 @@
 # 📦 IDB.js
 
-Lightweight promise-based wrapper for fast & simple access to IndexedDB API
+Lightweight promise-based wrapper for fast & simple access to IndexedDB API. With React integration ⚛️
 
 [![Latest release](https://img.shields.io/github/v/release/lr0pb/IDB.js?color=g&label=Version&logo=npm)](https://www.npmjs.com/package/@lr0pb/idb)
 [![Publish package](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml/badge.svg)](https://github.com/lr0pb/IDB.js/actions/workflows/publishPackage.yml)
@@ -11,6 +11,7 @@ Lightweight promise-based wrapper for fast & simple access to IndexedDB API
 ### Table of content
 1. [Usage](#usage)
 1. [Examples](#examples)
+1. [Use with React](#use-with-react)
 1. [API](#api)
 1. [Changes](#changes)
 1. [Develop](#develop)
@@ -63,73 +64,69 @@ Other helpful methods:
 - [`has()`](#check-that-store-contain-items)
 - [`onDataUpdate()`](#listen-for-store-updates)
 
+Use with React:
+- [`IDBProvider` component](#idbprovider)
+- [`useIDB` hook](#useidb-hook)
+- [`useDataLinker` hook](#usedatalinker-hook)
+
 ### TypeSctipt support
-IDB come out-of-the-box with types desclaration.
-By using IDB in TS project, every data related method (exludes `deleteAll`) have a type parameters, where `T` stands for `Type` of data you operate and `K` stands for `Key` to access this data in the store.
-You can learn detailed types annotation for the concrete method by clicking `[Ref]` link in the method description in this Readme or you can explore all types stuff [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB.IDB)
+IDB come out-of-the-box with types declaration.
+While using IDB in TS project, every data related method (exludes `deleteAll`) have a type parameters, where `T` stands for `Type` of data you operate and `K` stands for `Key` to access this data in the store.
+You can learn detailed types annotation for the concrete method by clicking `[Ref]` link in the method description within this Readme or you can explore all types stuff [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB.IDB)
 
 # Examples
 
 ### Set items to store
 [[Ref]](https://lr0pb.github.io/IDB.js/classes/IDB.IDB.html#set) Add item to the store via `db.set(store, item | items[])` method
 ```js
-async function addAuthor(books) {
-  await db.set('authors', {
-    name: 'Agatha Christie',
-    books: []
-  });
+await db.set('authors', {
+  name: 'Agatha Christie',
+  books: [...]
+});
 
-  await db.set('authors', [
-    author1, author2, ...
-  ]);
-}
+await db.set('authors', [
+  author1, author2, ...
+]);
 ```
 
 ### Get items from store
 [[Ref]](https://lr0pb.github.io/IDB.js/classes/IDB.IDB.html#get) Get one or more items by keys with `db.get(store, key | keys[])` method
 ```js
-async function renderAuthor() {
-  const author = await db.get('author', 'Agatha Christie');
-  // {
-  //   name: 'Agatha Christie',
-  //   books: [12345, 67890, ...],
-  //   ...
-  // }
-  ...
-  const authorsBooks = await db.get('books', author.books);
-  // [
-  //   {
-  //     id: 12345,
-  //     title: `Hercule Poirot's Christmas`,
-  //     ...
-  //   },
-  //   {
-  //     id: 67890,
-  //     title: `Murder on the Orient Express`,
-  //     ...
-  //   },
-  //   ...
-  // ]
-}
+const author = await db.get('author', 'Agatha Christie');
+// {
+//   name: 'Agatha Christie',
+//   books: [12345, 67890, ...],
+//   ...
+// }
+const authorsBooks = await db.get('books', author.books);
+// [
+//   {
+//     id: 12345,
+//     title: `Hercule Poirot's Christmas`,
+//     ...
+//   },
+//   {
+//     id: 67890,
+//     title: `Murder on the Orient Express`,
+//     ...
+//   },
+//   ...
+// ]
 ```
 
 ### Get all items from store
 [[Ref]](https://lr0pb.github.io/IDB.js/classes/IDB.IDB.html#getAll) Read all items in the store with `db.getAll(store, DataReceivingCallback?)` method
 ```js
-async function renderAllBooks() {
-  const books = await db.getAll('books');
-  books.forEach((book) => {
-    renderBook(book);
-  });
-}
+const books = await db.getAll('books');
+books.forEach((book) => {
+  renderBook(book);
+});
 ```
 Additionally, you can set `DataReceivingCallback` that will be called every time new item receives from the database
 ```js
-async function renderBooksProgressive() {
-  await db.getAll('books', (book) => {
-    renderBook(book);
-  });
-}
+await db.getAll('books', (book) => {
+  renderBook(book);
+});
 ```
 > `DataReceivingCallback` function must be **sync**
 
@@ -138,7 +135,8 @@ async function renderBooksProgressive() {
 ```js
 async function addBookToAuthor(book) {
   await db.update('authors', book.author, async (author) => {
-    // this callback function receives item object and you should apply changes directly to this object
+    // this callback function receives item object, to update it,
+    // you should apply changes directly to this object
     author.books.push(book.id);
     await sendAnalytics();
   });
@@ -150,28 +148,25 @@ If you provide multiple keys, `UpdateCallback` will be called for each received 
 ### Delete items from store
 [[Ref]](https://lr0pb.github.io/IDB.js/classes/IDB.IDB.html#delete) Delete one or more items by keys with `db.delete(store, key | keys[])` method and clear all store entries with `db.deleteAll(store)` method [[Ref]](https://lr0pb.github.io/IDB.js/classes/IDB.IDB.html#deleteAll)
 ```js
-async function deleteBooks() {
-  await db.delete('books', 12345);
-  await db.delete('books', [
-    67890, 34567, ...
-  ]);
-  await db.deleteAll('author'); // authors store is still available but have no items
-}
+await db.delete('books', 12345);
+await db.delete('books', [
+  67890, 34567, ...
+]);
+await db.deleteAll('author');
+// `authors` store is still available but have zero items
 ```
 
 ### Check that store contain items
 [[Ref]](https://lr0pb.github.io/IDB.js/classes/IDB.IDB.html#has) Check if store have certain items via `db.has(store, key | keys[] | void)` or get amount of all items in the store by not passing `key` argument
 ```js
-async function addBook() {
-  const book = {
-    id: 12345,
-    title: `Hercule Poirot's Christmas`,
-    ...
-  };
-  await db.set('books', book);
-  const isBookSaved = await db.has('books', book.id); // true
-  const booksCount = await db.has('books'); // 1
-}
+const book = {
+  id: 12345,
+  title: `Hercule Poirot's Christmas`,
+  ...
+};
+await db.set('books', book);
+const isBookSaved = await db.has('books', book.id); // true
+const booksCount = await db.has('books'); // 1
 ```
 
 ### Listen for store updates
@@ -179,23 +174,102 @@ async function addBook() {
 
 To unregister callback, call returned from `db.onDataUpdate` [`UnregisterListener`](https://lr0pb.github.io/IDB.js/classes/IDB.IDB#onDataUpdate) function
 ```js
-async signForUpdates() {
-  const unregister = await db.onDataUpdate('books', async ({store, type, item}) => {
-    // item argument not presented when it was a deleting operation
-    if (type === 'set' && isNewBook(item)) {
-      await notifyUserAboutNewBookAdded(item);
-    }
-  });
-  ...
-  unregister();
-}
+const unregister = await db.onDataUpdate('books', async ({store, type, item}) => {
+  // `item` argument not presented when it was a deleting operation
+  if (type === 'set' && isNewBook(item)) {
+    await notifyUserAboutNewBookAdded(item);
+  }
+});
+...
+unregister();
 ```
 > `StoreUpdatesListener` function can be **async**
+
+# Use with React
+> React integration now in `beta`, it will be available with `2.2.0` release
+
+All React integration things can be accessed from `@lr0pb/idb/react` import
+
+### IDBProvider
+[[Ref]](https://lr0pb.github.io/IDB.js/functions/react_IDBProvider.IDBProvider.html) Place a IDB [context](https://beta.reactjs.org/learn/passing-data-deeply-with-context) provider at the top component of your app:
+```jsx
+import { IDB } from '@lr0pb/idb';
+import { IDBProvider } from '@lr0pb/idb/react';
+
+const db = new IDB('library', 2, ...);
+
+export function App({ children }) {
+  return (
+    <IDBProvider db={db}>
+      {children}
+    </IDBProvider>
+  );
+}
+```
+
+### useIDB hook
+[[Ref]](https://lr0pb.github.io/IDB.js/functions/react_IDBProvider.useIDB.html) Now you can access your IDB instance everywhere in components deeper in your tree
+
+You can use all IDB methods as usual, but pay attention that you should place all calls in either event callbacks or inside `useEffect` hook
+
+```jsx
+import { useIDB } from '@lr0pb/idb/react';
+
+export function BookInfo({ book }) {
+  const db = useIDB();
+  const addBook = async () => {
+    await db.set('books', book);
+  };
+  return (
+    <div className='book'>
+      <img src={book.image} />
+      <h3>{book.title}</h3>
+      <button onClick={addBook}>📙 Add book</button>
+    </div>
+  );
+}
+```
+
+### useDataLinker hook
+> Before `2.2.0` version release this is subject to change
+
+[[Ref]](https://lr0pb.github.io/IDB.js/functions/react_useDataLinker.useDataLinker.html) You can request items from database in your component by `useDataLinker(store, params)` hook: it will return requested items and connect to the data updates
+
+As your requested items in the store added, updated or deleted, your components will automatically updated according to this changes
+```jsx
+import { useDataLinker } from '@lr0pb/idb/react';
+
+export function BooksList() {
+  const books = useDataLinker('books', { getAll: true });
+  if (!books.length) {
+    return <h3>There are no books</h3>;
+  }
+  return (
+    {books.map((book) => {
+      return <BookInfo book={book} key={book.id} />;
+    })}
+  );
+}
+```
+`params` argument describes which items should be connected from database. As superset, it realises this interfase:
+```ts
+interface params<T, K> {
+  initial? T,
+  key?: K,
+  keys?: K[],
+  getAll?: boolean,
+}
+```
+Detailed description can be found on [docs site](https://lr0pb.github.io/IDB.js/functions/react_useDataLinker.useDataLinker.html)
 
 # API
 View whole detailed API documentation with all the types and overloads [on docs site](https://lr0pb.github.io/IDB.js/classes/IDB.IDB)
 
 # Changes
+
+### Notable changes
+- **2.2.0** Added integration with React: `IDBProvider` component, `useIDB` & `useDataLinker` hooks
+- **2.1.0** Explicitly throw errors when something goes wrong in IDB methods call
 
 > View all changes during versions in [CHANGELOG](https://github.com/lr0pb/IDB.js/tree/main/CHANGELOG.md)
 
