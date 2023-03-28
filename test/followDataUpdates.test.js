@@ -149,4 +149,14 @@ export default function (container, checkStore) {
     unregister();
     unregister = null;
   });
+
+  it('follow non-existent store', async () => {
+    try {
+      await container.db.followDataUpdates(
+        'zero', 1234, () => {}
+      );
+    } catch (error) {
+      assert.exists(error);
+    }
+  });
 }

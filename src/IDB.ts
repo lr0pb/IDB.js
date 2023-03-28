@@ -5,6 +5,19 @@ import type {
   UpdatedDataListener,
 } from './IDBTypes.js'
 
+function checkStore(
+  originalMethod: (this: IDB, ...args: any[]) => any,
+  context: ClassMethodDecoratorContext<IDB>
+) {
+  const methodName = String(context.name);
+  async function replacementMethod(this: IDB, ...args: any[]) {
+    await this._isDbReady();
+    this._checkStore(methodName, args[0]);
+    return originalMethod.call(this, ...args);
+  }
+  return replacementMethod;
+}
+
 export class IDB {
   /**
    * Storage for listeners setted with `db.onDataUpdate` method
@@ -82,7 +95,7 @@ export class IDB {
     );
   }
 
-  private async _isDbReady(): Promise<boolean> {
+  protected async _isDbReady(): Promise<boolean> {
     if (this._closedDueToVersionChange) {
       throw new Error(
         '[IDB] Cannot access database due to versionchange earlier happened'
@@ -103,7 +116,7 @@ export class IDB {
     return `[IDB] Error in db.${name}(${store || ' '}): `;
   }
 
-  private _checkStore(name: string, store: string): boolean {
+  protected _checkStore(name: string, store: string): boolean {
     if (!this.db.objectStoreNames.contains(store)) {
       throw new Error(
         `${this._err(name, store)}database haven't "${store}" store`
@@ -113,16 +126,12 @@ export class IDB {
   }
 
   private async _dbCall(
-    name: string,
     store: string,
     mode: IDBTransactionMode,
     action: IDBAction,
     actionArgument?: any,
     onSuccess?: Function
   ): Promise<any> {
-    await this._isDbReady();
-    this._checkStore(name, store);
-
     const tx: IDBTransaction = this.db.transaction(store, mode);
     const os: IDBObjectStore = tx.objectStore(store);
     const response: any[] = [];
@@ -171,12 +180,13 @@ export class IDB {
   public async set<T>(store: string, items: T): Promise<boolean>;
   public async set<T>(store: string, items: T[]): Promise<boolean[]>;
   public async set<T>(store: string, items: T | T[]): Promise<boolean | boolean[]>;
+  @checkStore
   public async set<T>(
     store: string, items: T | T[]
   ): Promise<boolean | boolean[]> {
     const updatedKeys: any[] = [];
     const resp: boolean[] = await this._dbCall(
-      'setItem', store, 'readwrite', 'put', items,
+      store, 'readwrite', 'put', items,
       async (key: any) => {
         updatedKeys.push(key);
         return true; // TODO: If QuotaExceedError happened, catch it and return false;
@@ -194,11 +204,12 @@ export class IDB {
   public async get<T, K>(store: string, keys: K): Promise<T | void>
   public async get<T, K>(store: string, keys: K[]): Promise<(T | void)[]>
   public async get<T, K>(store: string, keys: K | K[]): Promise<T | void | (T | void)[]>
+  @checkStore
   public async get<T, K>(
     store: string, keys: K | K[]
   ): Promise<T | void | (T | void)[]> {
     const items: T[] = await this._dbCall(
-      'getItem', store, 'readonly', 'get', keys
+      store, 'readonly', 'get', keys
     );
     if (Array.isArray(keys) && !Array.isArray(items)) {
       return [items];
@@ -228,6 +239,7 @@ export class IDB {
     store: string, keys: K | K[], updateCallbacks: UpdateCallback | UpdateCallback[]
   ): Promise<T[]>
 
+  @checkStore
   public async update<T, K>(
     store: string,
     keys: K | K[],
@@ -270,12 +282,13 @@ export class IDB {
 * @param store Name of database store
 * @param onData Sync function that calls every time when next item received
 */
+  @checkStore
   public async getAll<T>(
     store: string, onData?: DataReceivingCallback
   ): Promise<T[]> {
     let index = 0;
     let items: T[] = await this._dbCall(
-      'getAll', store, 'readonly', 'openCursor', null,
+      store, 'readonly', 'openCursor', null,
       (result: IDBCursorWithValue): T | void => {
         if (!result) return;
         const value: T = result.value;
@@ -296,9 +309,10 @@ export class IDB {
 * @param store Name of database store
 * @param keys Key value to access item in the store
 */
+  @checkStore
   public async delete<K>(store: string, keys: K | K[]): Promise<void> {
     await this._dbCall(
-      'deleteItem', store, 'readwrite', 'delete', keys
+      store, 'readwrite', 'delete', keys
     );
     if (!Array.isArray(keys)) keys = [keys];
     this._emitDataUpdateListeners<K>(store, 'delete', keys);
@@ -308,9 +322,10 @@ export class IDB {
 * Delete all items from the store
 * @param store Name of database store
 */
+  @checkStore
   public async deleteAll(store: string): Promise<void> {
     await this._dbCall(
-      'deleteAll', store, 'readwrite', 'clear', null
+      store, 'readwrite', 'clear', null
     );
     this._emitDataUpdateListeners(store, 'deleteAll', []);
   }
@@ -324,11 +339,12 @@ export class IDB {
   public async has<K>(store: string, keys: K[]): Promise<boolean[]>
   public async has<K>(store: string, keys: K | K[]): Promise<boolean | boolean[]>
   public async has(store: string): Promise<number>
+  @checkStore
   public async has<K>(
     store: string, keys?: K
   ): Promise<boolean | boolean[] | number> {
     let resp: (number | void)[] | number = await this._dbCall(
-      'hasItem', store, 'readonly', 'count', keys
+      store, 'readonly', 'count', keys
     );
     if (!keys) {
       return typeof resp == 'number' ? resp : 0;
@@ -347,11 +363,10 @@ export class IDB {
 * @param store Name of database store
 * @param listener Async function that calls every time when 'set', 'delete' and 'deleteAll' operations in the store happens
 */
+  @checkStore
   public async onDataUpdate<K>(
     store: string, listener: DataUpdateListener<K>
   ): Promise<UnregisterListener> {
-    await this._isDbReady();
-    this._checkStore('onDataUpdate', store);
     if (!(store in this._listeners)) {
       this._listeners[store] = {};
     }
@@ -393,19 +408,18 @@ export class IDB {
     listener: UpdatedDataListener<T[]>
   ): Promise<UnregisterListener>
 
+  @checkStore
   public async followDataUpdates<T, K>(
     store: string,
     keys: K | K[] | void,
     listener: UpdatedDataListener<T | void | (T | void)[]>
   ): Promise<UnregisterListener> {
-    await this._isDbReady();
-    this._checkStore('followDataUpdates', store);
     const unregister = await this.onDataUpdate<K>(store, async ({
       type, keys: updatedKeys
     }) => {
-      const getAll = !keys //||
-        // (typeof keys === 'object' && !Array.isArray(keys) &&
-        // 'getAll' in keys && keys.getAll === true);
+      const getAll = !keys ||
+        (typeof keys === 'object' && !Array.isArray(keys) &&
+        (keys as { getAll?: true }).getAll === true);
       if (type === 'deleteAll') {
         return listener(getAll || Array.isArray(keys) ? [] : undefined);
       }
