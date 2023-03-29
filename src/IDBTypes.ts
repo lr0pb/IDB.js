@@ -16,16 +16,14 @@ export interface StoreDefinition {
  */
 export interface IDBOptions {
   /**
-   * Show additional technical log e.g. when database is ready to use
+   * Show additional technical logs e.g. when database is ready to use
    */
   showLogs?: boolean,
 }
 /**
  * Internal interface for checking that store is exist in database
  */
-export interface StoreContainment {
-  [name: string]: boolean
-}
+export type StoreContainment = Record<string, boolean>
 /**
  * Internal type for define which methods can be called on transaction's store object
  */
@@ -40,13 +38,13 @@ export type IDBAction =
  * Function that call as callback in `db.update` for modifying item, should modify item object directly, without returning them
  * @param item Store's item to update
  */
-export type UpdateCallback = (item: any) => Promise<void>;
+export type UpdateCallback<T> = (item: T) => Promise<void>;
 /**
  * Function that call as callback in `db.getAll` for do some actions with received item. Should be ONLY **sync**
  * @param item Item that received from the store
  * @param index Item's position in the store (not confuse with key)
  */
-export type DataReceivingCallback = (item: any, index: number) => void;
+export type DataReceivingCallback<T> = (item: T, index: number) => void;
 /**
  * Type of action that trigger data update listener call
  */
