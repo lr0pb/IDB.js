@@ -5,48 +5,48 @@ import type {
   UpdatedDataListener,
 } from './IDBTypes.js'
 import type { IDBInterface } from './IDBInterface.js'
-import { checkStore, IDBError } from './decorators/checkStore.js'
+import { checkStore, IDBError } from './utils/checkStore.js'
 
 export class IDB implements IDBInterface {
   // Storage for listeners setted with `db.onDataUpdate` method
-  private readonly _listeners: Record<string, Record<number, DataUpdateListener<any>>>;
+  readonly #listeners: Record<string, Record<number, DataUpdateListener<any>>>;
   // IDB open request object https://w3c.github.io/IndexedDB/#open-requests
-  private readonly _openRequest: IDBRequest;
+  readonly #openRequest: IDBRequest;
   // Storage for options passed to new IDB()
-  private readonly _options: IDBOptions;
+  readonly #options: IDBOptions;
   // Private readwrite prop behind public closedDueToVersionChange readonly prop
-  private _closedDueToVersionChange?: boolean;
+  #closedDueToVersionChange?: boolean;
   
   public get closedDueToVersionChange() {
-    return this._closedDueToVersionChange;
+    return this.#closedDueToVersionChange;
   }
   public db!: IDBDatabase;
-/**
-* Create database and return its wrapper
-* @param name Database name
-* @param version Database version
-* @param objectStores Object stores that will create and update with database version change
-* @param options Options for IDB object
-*/
+  /**
+  * Create database and return its wrapper
+  * @param name Database name
+  * @param version Database version
+  * @param objectStores Object stores that will create and update with database version change
+  * @param options Options for IDB object
+  */
   constructor(
     name: string,
     version: number,
     objectStores: StoreDefinition[],
     options: IDBOptions = {}
   ) {
-    this._options = options;
-    this._listeners = {};
-    this._openRequest = indexedDB.open(name, version);
-    this._openRequest.addEventListener('upgradeneeded', () => this._upgradeneeded(objectStores));
-    this._openRequest.addEventListener('success', () => this._success());
+    this.#options = options;
+    this.#listeners = {};
+    this.#openRequest = indexedDB.open(name, version);
+    this.#openRequest.addEventListener('upgradeneeded', () => this.#upgradeneeded(objectStores));
+    this.#openRequest.addEventListener('success', () => this.#success());
     return this;
   }
 
-  private _upgradeneeded(objectStores: StoreDefinition[]): void {
-    if (this._options.showLogs) {
+  #upgradeneeded(objectStores: StoreDefinition[]): void {
+    if (this.#options.showLogs) {
       console.log('[IDB] Database upgrading started');
     }
-    this.db = this._openRequest.result;
+    this.db = this.#openRequest.result;
     const actualStores: StoreContainment = {};
     for (let store of objectStores) {
       if (!this.db.objectStoreNames.contains(store.name)) {
@@ -61,29 +61,31 @@ export class IDB implements IDBInterface {
     };
   }
 
-  private _success(): void {
-    if (this._options.showLogs) {
+  #success(): void {
+    if (this.#options.showLogs) {
       console.log('[IDB] Database successfully opened');
     }
-    this.db = this._openRequest.result;
-    this.db.addEventListener('versionchange', () => this._versionchange());
+    this.db = this.#openRequest.result;
+    this.db.addEventListener('versionchange', () => this.#versionchange());
   }
 
-  private _versionchange(): void {
+  #versionchange(): void {
     this.db.close();
-    this._closedDueToVersionChange = true;
+    this.#closedDueToVersionChange = true;
     throw new Error(
       '[IDB] Database closed due to versionchange event, reload page'
     );
   }
 
-  private async _dbCall(
+  protected async _dbCall(
+    methodName: string,
     store: string,
     mode: IDBTransactionMode,
     action: IDBAction,
     actionArgument?: any,
     onSuccess?: Function
   ): Promise<any> {
+    await checkStore(this, methodName, store);
     const tx: IDBTransaction = this.db.transaction(store, mode);
     const os: IDBObjectStore = tx.objectStore(store);
     const response: any[] = [];
@@ -112,12 +114,12 @@ export class IDB implements IDBInterface {
     });
   }
 
-  private async _emitDataUpdateListeners<K>(
+  protected async _emitDataUpdateListeners<K>(
     store: string, type: DataUpdateType, keys: K[], item?: any
   ): Promise<void> {
-    if (!(store in this._listeners)) return;
-    for (let hash in this._listeners[store]) {
-      await this._listeners[store][hash]({
+    if (!(store in this.#listeners)) return;
+    for (let hash in this.#listeners[store]) {
+      await this.#listeners[store][hash]({
         store, type, keys, item
       });
     }
@@ -126,13 +128,12 @@ export class IDB implements IDBInterface {
   public async set<T>(store: string, items: T): Promise<boolean>;
   public async set<T>(store: string, items: T[]): Promise<boolean[]>;
   public async set<T>(store: string, items: T | T[]): Promise<boolean | boolean[]>;
-  @checkStore
   public async set<T>(
     store: string, items: T | T[]
   ): Promise<boolean | boolean[]> {
     const updatedKeys: any[] = [];
     const resp: boolean[] = await this._dbCall(
-      store, 'readwrite', 'put', items,
+      'set', store, 'readwrite', 'put', items,
       async (key: any) => {
         updatedKeys.push(key);
         return true; // TODO: If QuotaExceedError happened, catch it and return false;
@@ -145,12 +146,11 @@ export class IDB implements IDBInterface {
   public async get<T, K>(store: string, keys: K): Promise<T | void>
   public async get<T, K>(store: string, keys: K[]): Promise<(T | void)[]>
   public async get<T, K>(store: string, keys: K | K[]): Promise<T | void | (T | void)[]>
-  @checkStore
   public async get<T, K>(
     store: string, keys: K | K[]
   ): Promise<T | void | (T | void)[]> {
     const items: T[] = await this._dbCall(
-      store, 'readonly', 'get', keys
+      'get', store, 'readonly', 'get', keys
     );
     if (Array.isArray(keys) && !Array.isArray(items)) {
       return [items];
@@ -168,12 +168,12 @@ export class IDB implements IDBInterface {
     store: string, keys: K | K[], updateCallbacks: UpdateCallback<T> | UpdateCallback<T>[]
   ): Promise<T | T[]>
 
-  @checkStore
   public async update<T, K>(
     store: string,
     keys: K | K[],
     updateCallbacks: UpdateCallback<T> | UpdateCallback<T>[]
   ): Promise<T | T[]> {
+    await checkStore(this, 'update', store);
     if (!Array.isArray(keys)) keys = [keys];
     if (!Array.isArray(updateCallbacks)) updateCallbacks = [updateCallbacks];
     const base = IDBError('update', store);
@@ -206,13 +206,12 @@ export class IDB implements IDBInterface {
     return verifiedItems.length == 1 ? verifiedItems[0] : verifiedItems;
   }
 
-  @checkStore
   public async getAll<T>(
     store: string, onData?: DataReceivingCallback<T>
   ): Promise<T[]> {
     let index = 0;
     let items: T[] = await this._dbCall(
-      store, 'readonly', 'openCursor', null,
+      'getAll', store, 'readonly', 'openCursor', null,
       (result: IDBCursorWithValue): T | void => {
         if (!result) return;
         const value: T = result.value;
@@ -228,19 +227,17 @@ export class IDB implements IDBInterface {
     return items;
   }
 
-  @checkStore
   public async delete<K>(store: string, keys: K | K[]): Promise<void> {
     await this._dbCall(
-      store, 'readwrite', 'delete', keys
+      'delete', store, 'readwrite', 'delete', keys
     );
     if (!Array.isArray(keys)) keys = [keys];
     this._emitDataUpdateListeners<K>(store, 'delete', keys);
   }
 
-  @checkStore
   public async deleteAll(store: string): Promise<void> {
     await this._dbCall(
-      store, 'readwrite', 'clear', null
+      'deleteAll', store, 'readwrite', 'clear', null
     );
     this._emitDataUpdateListeners(store, 'deleteAll', []);
   }
@@ -249,12 +246,11 @@ export class IDB implements IDBInterface {
   public async has<K>(store: string, keys: K[]): Promise<boolean[]>
   public async has<K>(store: string, keys: K | K[]): Promise<boolean | boolean[]>
   public async has(store: string): Promise<number>
-  @checkStore
   public async has<K>(
     store: string, keys?: K | K[]
   ): Promise<boolean | boolean[] | number> {
     let resp: (number | void)[] | number = await this._dbCall(
-      store, 'readonly', 'count', keys
+      'has', store, 'readonly', 'count', keys
     );
     if (!keys) {
       return typeof resp == 'number' ? resp : 0;
@@ -268,17 +264,17 @@ export class IDB implements IDBInterface {
     }
   }
 
-  @checkStore
   public async onDataUpdate<K>(
     store: string, listener: DataUpdateListener<K>
   ): Promise<UnregisterListener> {
-    if (!(store in this._listeners)) {
-      this._listeners[store] = {};
+    await checkStore(this, 'onDataUpdate', store);
+    if (!(store in this.#listeners)) {
+      this.#listeners[store] = {};
     }
     const hash = Date.now();
-    this._listeners[store][hash] = listener;
+    this.#listeners[store][hash] = listener;
     return () => {
-      delete this._listeners[store][hash];
+      delete this.#listeners[store][hash];
     };
   }
 
@@ -300,12 +296,12 @@ export class IDB implements IDBInterface {
     listener: UpdatedDataListener<T[]>
   ): Promise<UnregisterListener>
 
-  @checkStore
   public async followDataUpdates<T, K>(
     store: string,
     keys: K | K[] | void,
     listener: UpdatedDataListener<T | void | (T | void)[]>
   ): Promise<UnregisterListener> {
+    await checkStore(this, 'followDataUpdates', store);
     const unregister = await this.onDataUpdate<K>(store, async ({
       type, keys: updatedKeys
     }) => {
