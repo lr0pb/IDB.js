@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2019",
+    "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "nodenext",
     "strict": true,
@@ -9,5 +9,6 @@
     "declaration": true,
     "declarationDir": "lib/types"
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }

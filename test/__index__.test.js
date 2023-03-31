@@ -1,5 +1,5 @@
 import mocha from 'mocha/mocha';
-import { assert, should } from 'chai/index.mjs';
+import { assert } from 'chai';
 // this IDB import file creates dinamically within dev server
 import { IDB } from '/IDB.js';
 
@@ -45,9 +45,11 @@ before('open database', async () => {
       { name: 'two', index: { keyPath: 'id' } },
       { name: 'three', index: { keyPath: 'id' } },
       { name: 'six', index: { autoIncrement: true } },
-    ]);
-  } catch (err) {
-    should.not.exist(err);
+    ], {
+      showLogs: true,
+    });
+  } catch (error) {
+    assert.notExists(error);
   }
   assert.instanceOf(container.db, IDB);
 });

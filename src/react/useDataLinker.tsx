@@ -73,21 +73,21 @@ export function useDataLinker<T, K>(
       setter(resp);
     }
     getData();
-    const unregisterPromise = db.onDataUpdate(store, async (updateInfo) => {
-      const resp = await processDataUpdate<K>(
-        db, store, arguments[1], updateInfo
-      );
-      if (resp === 'callSetter') {
-        setter(undefined);
-      } else if (resp === 'callGetData') {
-        await getData();
-      }
-    });
-    return () => {
-      unregisterPromise.then((unregister) => {
-        if (unregister) unregister();
-      });
-    };
+    // const unregisterPromise = db.onDataUpdate(store, async (updateInfo) => {
+    //   const resp = await processDataUpdate<K>(
+    //     db, store, arguments[1], updateInfo
+    //   );
+    //   if (resp === 'callSetter') {
+    //     setter(undefined);
+    //   } else if (resp === 'callGetData') {
+    //     await getData();
+    //   }
+    // });
+    // return () => {
+    //   unregisterPromise.then((unregister) => {
+    //     if (unregister) unregister();
+    //   });
+    // };
   }, []);
   return data;
 }
