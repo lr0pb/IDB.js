@@ -84,12 +84,11 @@ export abstract class IDBInterface {
   * @param store Name of database store
   * @param keys Key of item to follow / array of item keys to follow, if no - fallback to all store items / explicit { getAll: true } to follow all changes in store
   * @param listener Async function that calls every time when updates happened with selected items
-  * @example `Follow one item:`
+  * @example // Follow one item:
   * db.followDataUpdates<ItemType, number>('store', 123, callback)
-  * @example `Follow multiple items:`
+  * @example // Follow multiple items, if no keys array - follow all changes in store:
   * db.followDataUpdates<ItemType, number>('store', [123, 124], callback)
-  * `if no keys array presented - fallback to follow all changes in store`
-  * @example `Explicit follow all changes in store:`
+  * @example // Explicit follow all changes in store:
   * db.followDataUpdates<ItemType>('store', { getAll: true }, callback)
   */
   public abstract followDataUpdates<T, K>(

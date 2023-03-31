@@ -45,7 +45,9 @@ before('open database', async () => {
       { name: 'two', index: { keyPath: 'id' } },
       { name: 'three', index: { keyPath: 'id' } },
       { name: 'six', index: { autoIncrement: true } },
-    ]);
+    ], {
+      showLogs: true,
+    });
   } catch (error) {
     assert.notExists(error);
   }
