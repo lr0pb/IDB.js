@@ -1,8 +1,7 @@
-import { IDBProvider, useIDB } from './IDBProvider.js';
-import { useDataLinker } from './useDataLinker.js';
+import { IDBProvider } from './IDBProvider.js';
+import { useIDB } from './useIDB.js';
 
 export {
   IDBProvider,
   useIDB,
-  useDataLinker,
 };

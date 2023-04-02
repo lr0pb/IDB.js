@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { IDB } from '../IDB.js';
+import type { IDB } from '../IDB.js';
 
-export const IDBContext = React.createContext<IDB>(IDB.prototype);
+export const IDBContext = React.createContext<IDB | null>(null);
 
-export interface IDBProviderProps {
+interface IDBProviderProps {
   /**
    * Your IDB database instance
    */
@@ -22,12 +22,4 @@ export const IDBProvider: React.FC<IDBProviderProps> = ({
       {children}
     </IDBContext.Provider>
   );
-}
-
-/**
- * Hook to get your database inside React component
- * @returns Your IDB database instance
- */
-export function useIDB(): IDB {
-  return React.useContext(IDBContext);
 }
