@@ -1,4 +1,5 @@
 import type {
+  IDBArguments,
   IDBOptions, IDBAction, StoreDefinition,
   StoreContainment, UpdateCallback, DataReceivingCallback,
   DataUpdateType, DataUpdateListener, UnregisterListener,
@@ -28,12 +29,12 @@ export class IDB implements IDBInterface {
   * @param objectStores Object stores that will create and update with database version change
   * @param options Options for IDB object
   */
-  constructor(
-    name: string,
-    version: number,
-    objectStores: StoreDefinition[],
-    options: IDBOptions = {}
-  ) {
+  constructor(...[
+    name,
+    version,
+    objectStores,
+    options = {},
+  ]: IDBArguments) {
     this.#options = options;
     this.#listeners = {};
     this.#openRequest = indexedDB.open(name, version);

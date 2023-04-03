@@ -1,4 +1,13 @@
 /**
+ * Arguments for IDB constructor
+ */
+export type IDBArguments = [
+  name: string,
+  version: number,
+  objectStores: StoreDefinition[],
+  options: IDBOptions,
+];
+/**
  * Description of store that will be created alongside with database
  */
 export interface StoreDefinition {
