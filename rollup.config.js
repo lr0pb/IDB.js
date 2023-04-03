@@ -1,5 +1,4 @@
 import terser from '@rollup/plugin-terser';
-import babel from '@rollup/plugin-babel';
 import dts from 'rollup-plugin-dts';
 import typescript from '@rollup/plugin-typescript';
 
@@ -42,7 +41,9 @@ if (!isServe && isDev) {
   };
 } else if (!isServe) {
   lib = Object.assign(base, {
-    plugins: [terser(terserArgs)]
+    plugins: [
+      terser(terserArgs),
+    ]
   });
 }
 
@@ -54,12 +55,7 @@ const react = isServe ? {} : {
   },
   external,
   plugins: [
-    babel({
-      babelHelpers: 'bundled',
-      exclude: 'node_modules/**/*',
-      presets: ["@babel/preset-react"],
-    }),
-    !isDev && terser(terserArgs)
+    !isDev && terser(terserArgs),
   ]
 }
 
