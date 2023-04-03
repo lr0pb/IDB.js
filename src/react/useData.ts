@@ -2,16 +2,15 @@ import * as React from 'react';
 import { useIDB } from './useIDB.js';
 
 /**
- * Hook to read items from database in React components
+ * Hook to read items from database inside React components
  * @param store Store from which you will get items
  * @param keys Key of item / array of item keys, if no - fallback to all store items / explicit { getAll: true } to get all store items
  * @param initial Initial value
- * @example `Read one item:`
+ * @example // Read one item:
  * useData<ItemType, number>('store', 123)
- * @example `Read multiple items:`
+ * @example // Read multiple items, if no keys array presented - fallback to get all store items:
  * useData<ItemType, number>('store', [123, 124])
- * `if no keys array presented - fallback to get all store items`
- * @example `Explicit read all store items:`
+ * @example // Explicitly read all store items:
  * useData<ItemType>('store', { getAll: true })
  */
 export function useData<T, K>(

@@ -2,8 +2,8 @@ import * as React from 'react';
 import { IDBContext } from './IDBProvider.js';
 
 /**
- * Hook to get your database inside React component
- * @returns Your IDB database instance
+ * Hook to get your database inside React components
+ * @returns IDB database instance
  */
 export function useIDB() {
   const db = React.useContext(IDBContext);

@@ -5,14 +5,14 @@ export const IDBContext = React.createContext<IDB | void>(undefined);
 
 interface IDBProviderProps {
   /**
-   * Your IDB database instance
+   * IDB database instance
    */
   db: IDB,
   children?: React.ReactNode | React.ReactNode[],
 }
 
 /**
- * Top container component for your app. Provides context with your IDB database to nested components
+ * Top container component for app. Provides context with given IDB instance
  */
 export const IDBProvider: React.FC<IDBProviderProps> = ({
   db, children
