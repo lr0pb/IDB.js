@@ -8,15 +8,25 @@ interface IDBProviderProps {
    * IDB database instance
    */
   db: IDB,
-  children?: React.ReactNode | React.ReactNode[],
+  children?: React.ReactNode,
 }
 
 /**
- * Top container component for app. Provides context with given IDB instance
+ * Top container component that pass context with IDB instance
+ * down to the components that will use IDB
  */
 export const IDBProvider: React.FC<IDBProviderProps> = ({
   db, children
 }) => {
+  React.useEffect(() => {
+    if (!db || !(db instanceof IDB)) {
+      throw Error('[IDB] An IDB instance should be passed to IDBProvider as `db` prop');
+    }
+    db.ping();
+    return () => {
+      db.db.close();
+    };
+  }, []);
   return React.createElement(
     IDBContext.Provider,
     { value: db },
