@@ -1,11 +1,16 @@
+export interface IDBParams {
+  name: string,
+  version: number,
+  stores: StoreDefinition[],
+}
 /**
  * Arguments for IDB constructor
  */
 export type IDBArguments = [
   name: string,
   version: number,
-  objectStores: StoreDefinition[],
-  options: IDBOptions,
+  stores: StoreDefinition[],
+  options?: IDBOptions,
 ];
 /**
  * Description of store that will be created alongside with database

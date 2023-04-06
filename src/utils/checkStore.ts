@@ -3,6 +3,7 @@ import type { IDBInterface } from '../IDBInterface.js'
 export async function checkStore(
   idb: IDBInterface, methodName: string, store: string,
 ) {
+  idb.ping();
   await isDbReady(idb);
   if (!idb.db.objectStoreNames.contains(store)) {
     throw new Error(
@@ -10,26 +11,6 @@ export async function checkStore(
     );
   }
 }
-
-// type StoreArguments = [string, ...any[]]
-
-// export function checkStore(
-//   originalMethod: (this: IDBInterface, ...args: StoreArguments) => any,
-//   context: ClassMethodDecoratorContext<IDBInterface>
-// ) {
-//   const methodName = String(context.name);
-//   async function replacementMethod(this: IDBInterface, ...args: StoreArguments) {
-//     await isDbReady(this);
-//     const store = args[0];
-//     if (!this.db.objectStoreNames.contains(store)) {
-//       throw new Error(
-//         `${IDBError(methodName, store)}database haven't "${store}" store`
-//       );
-//     }
-//     return originalMethod.call(this, ...args);
-//   }
-//   return replacementMethod;
-// }
 
 async function isDbReady(idb: IDBInterface): Promise<boolean> {
   if (idb.closedDueToVersionChange) {

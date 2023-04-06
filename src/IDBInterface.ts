@@ -15,6 +15,11 @@ export abstract class IDBInterface {
   public abstract db: IDBDatabase;
 
   /**
+   * Activate connection to database. This method automatically called internally, so no extra need to use it in user-land
+   */
+  public abstract ping(): void
+
+  /**
   * Add or rewrite item in the store
   * @param store Name of database store
   * @param items Serializable object that IDB can store

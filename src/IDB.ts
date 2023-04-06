@@ -1,5 +1,5 @@
 import type {
-  IDBArguments,
+  IDBParams, IDBArguments,
   IDBOptions, IDBAction, StoreDefinition,
   StoreContainment, UpdateCallback, DataReceivingCallback,
   DataUpdateType, DataUpdateListener, UnregisterListener,
@@ -11,10 +11,12 @@ import { checkStore, IDBError } from './utils/checkStore.js'
 export class IDB implements IDBInterface {
   // Storage for listeners setted with `db.onDataUpdate` method
   readonly #listeners: Record<string, Record<number, DataUpdateListener<any>>>;
-  // IDB open request object https://w3c.github.io/IndexedDB/#open-requests
-  readonly #openRequest: IDBRequest;
+  // Initial database params
+  readonly #params: IDBParams;
   // Storage for options passed to new IDB()
   readonly #options: IDBOptions;
+  // IDB open request object https://w3c.github.io/IndexedDB/#open-requests
+  #openRequest!: IDBRequest;
   // Private readwrite prop behind public closedDueToVersionChange readonly prop
   #closedDueToVersionChange?: boolean;
   
@@ -32,22 +34,32 @@ export class IDB implements IDBInterface {
   constructor(...[
     name,
     version,
-    objectStores,
+    stores,
     options = {},
   ]: IDBArguments) {
+    this.#params = { name, version, stores };
     this.#options = options;
     this.#listeners = {};
-    this.#openRequest = indexedDB.open(name, version);
-    this.#openRequest.addEventListener('upgradeneeded', () => this.#upgradeneeded(objectStores));
-    this.#openRequest.addEventListener('success', () => this.#success());
     return this;
   }
 
-  #upgradeneeded(objectStores: StoreDefinition[]): void {
+  public ping(): void {
+    this.#init();
+    this.ping = () => {};
+  }
+
+  #init(): void {
+    this.#openRequest = indexedDB.open(this.#params.name, this.#params.version);
+    this.#openRequest.addEventListener('upgradeneeded', () => this.#upgradeneeded());
+    this.#openRequest.addEventListener('success', () => this.#success());
+  }
+
+  #upgradeneeded(): void {
     if (this.#options.showLogs) {
       console.log('[IDB] Database upgrading started');
     }
     this.db = this.#openRequest.result;
+    const objectStores = this.#params.stores;
     const actualStores: StoreContainment = {};
     for (let store of objectStores) {
       if (!this.db.objectStoreNames.contains(store.name)) {
@@ -84,7 +96,7 @@ export class IDB implements IDBInterface {
     mode: IDBTransactionMode,
     action: IDBAction,
     actionArgument?: any,
-    onSuccess?: Function
+    onSuccess?: Function,
   ): Promise<any> {
     await checkStore(this, methodName, store);
     const tx: IDBTransaction = this.db.transaction(store, mode);

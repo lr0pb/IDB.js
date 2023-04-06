@@ -48,6 +48,7 @@ before('open database', async () => {
     ], {
       showLogs: true,
     });
+    container.db.ping();
   } catch (error) {
     assert.notExists(error);
   }
