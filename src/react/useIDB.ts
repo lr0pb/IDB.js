@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { IDB } from '../IDB.js'
+import type { IDB } from '../IDB.js';
 import { IDBContext } from './IDBProvider.js';
 
 /**

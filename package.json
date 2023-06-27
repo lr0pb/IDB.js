@@ -21,15 +21,21 @@
   ],
   "sideEffects": false,
   "type": "module",
+  "exports": {
+    ".": {
+      "default": "./index.js",
+      "types": "./index.d.ts"
+    },
+    "./react": {
+      "default": "./react.js",
+      "types": "./react.d.ts"
+    }
+  },
   "module": "./index.js",
   "types": "./index.d.ts",
-  "exports": {
-    ".": "./index.js",
-    "./react": "./react.js"
-  },
   "scripts": {
     "test": "set DEV=1 && rollup -c -w",
-    "replace": "npx replace '../IDB' './index' react.js react.d.ts",
+    "replace": "node replace.js",
     "build": "npx tsc && rollup -c && npm run replace",
     "serve": "set SERVE=1 && rollup -c -w",
     "doc": "npx typedoc",
@@ -37,27 +43,32 @@
     "experimental": "npm publish --access public --tag experimental"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-commonjs": "^25.0.2",
     "@rollup/plugin-json": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-terser": "^0.4.0",
-    "@rollup/plugin-typescript": "^11.0.0",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-terser": "^0.4.3",
+    "@rollup/plugin-typescript": "^11.1.1",
     "@types/chai": "^4.3.4",
     "@types/react": "^18.0.28",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
+    "prettier": "^2.8.8",
     "react": "^18.2.0",
-    "replace": "^1.2.2",
-    "rollup": "^3.20.2",
+    "rollup": "^3.25.3",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-dts": "^5.3.0",
     "rollup-plugin-livereload": "^2.0.5",
-    "rollup-plugin-serve": "^2.0.1",
+    "rollup-plugin-serve": "^2.0.2",
     "tslib": "^2.5.0",
     "typedoc": "^0.24.0-beta.7",
     "typescript": "^5.0.2"
   },
   "peerDependencies": {
-    "react": ">=18"
+    "react": "^17 || ^18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   }
 }

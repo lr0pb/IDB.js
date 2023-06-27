@@ -1,3 +1,7 @@
 {
+  "prettier.configPath": ".prettierrc.json",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.linkedEditing": true,
   "typescript.tsdk": "node_modules\\typescript\\lib"
 }

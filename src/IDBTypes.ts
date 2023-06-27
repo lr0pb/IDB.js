@@ -1,7 +1,7 @@
 export interface IDBParams {
-  name: string,
-  version: number,
-  stores: StoreDefinition[],
+  name: string;
+  version: number;
+  stores: StoreDefinition[];
 }
 /**
  * Arguments for IDB constructor
@@ -10,7 +10,7 @@ export type IDBArguments = [
   name: string,
   version: number,
   stores: StoreDefinition[],
-  options?: IDBOptions,
+  options?: IDBOptions
 ];
 /**
  * Description of store that will be created alongside with database
@@ -19,11 +19,11 @@ export interface StoreDefinition {
   /**
    * Name of store
    */
-  name: string,
+  name: string;
   /**
    * Indexing method for items in this store. For expample via some key or by auto incrementing new number key to every new item
    */
-  index: IDBObjectStoreParameters
+  index: IDBObjectStoreParameters;
 }
 /**
  * Additional options for IDB class instance
@@ -32,12 +32,12 @@ export interface IDBOptions {
   /**
    * Show additional technical logs e.g. when database is ready to use
    */
-  showLogs?: boolean,
+  showLogs?: boolean;
 }
 /**
  * Internal interface for checking that store is exist in database
  */
-export type StoreContainment = Record<string, boolean>
+export type StoreContainment = Record<string, boolean>;
 /**
  * Internal type for define which methods can be called on transaction's store object
  */
@@ -62,10 +62,7 @@ export type DataReceivingCallback<T> = (item: T, index: number) => void;
 /**
  * Type of action that trigger data update listener call
  */
-export type DataUpdateType =
-  | 'set'
-  | 'delete'
-  | 'deleteAll';
+export type DataUpdateType = 'set' | 'delete' | 'deleteAll';
 /**
  * Options passed to `StoreUpdatesListener` for `db.onDataUpdate` method
  */
@@ -73,25 +70,27 @@ export interface DataUpdateInfo<K> {
   /**
    * Name of store in that changes was happened
    */
-  store: string,
+  store: string;
   /**
    * Name of action that trigger this changes
    */
-  type: DataUpdateType,
+  type: DataUpdateType;
   /**
    * If `type` is `set` provide key of item that was setted/updated in the store
    * @deprecated Use `key` property instead. In few minor releases `item` will be deleted
    */
-  item?: any,
+  item?: any;
   /**
    * Keys of items that was updated in the store, empty array if its `deleteAll` type
    */
-  keys: K[],
+  keys: K[];
 }
 /**
  * Listener that calls when some changes with data was happened in the store
  */
-export type DataUpdateListener<K> = (info: DataUpdateInfo<K>) => Promise<void> | void;
+export type DataUpdateListener<K> = (
+  info: DataUpdateInfo<K>
+) => Promise<void> | void;
 /**
  * Function to uregister `onDataUpdate` listener from the store
  */

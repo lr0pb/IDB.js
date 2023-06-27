@@ -1,7 +1,9 @@
-import type { IDBInterface } from '../IDBInterface.js'
+import type { IDBInterface } from '../IDBInterface.js';
 
 export async function checkStore(
-  idb: IDBInterface, methodName: string, store: string,
+  idb: IDBInterface,
+  methodName: string,
+  store: string
 ) {
   idb.ping();
   await isDbReady(idb);
@@ -22,7 +24,7 @@ async function isDbReady(idb: IDBInterface): Promise<boolean> {
     await new Promise((resolve: (value: void) => void): void => {
       const isComplete = (): void => {
         idb.db ? resolve() : requestAnimationFrame(isComplete);
-      }
+      };
       isComplete();
     });
   }

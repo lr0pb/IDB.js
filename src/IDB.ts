@@ -1,12 +1,19 @@
 import type {
-  IDBParams, IDBArguments,
-  IDBOptions, IDBAction, StoreDefinition,
-  StoreContainment, UpdateCallback, DataReceivingCallback,
-  DataUpdateType, DataUpdateListener, UnregisterListener,
+  IDBParams,
+  IDBArguments,
+  IDBOptions,
+  IDBAction,
+  StoreDefinition,
+  StoreContainment,
+  UpdateCallback,
+  DataReceivingCallback,
+  DataUpdateType,
+  DataUpdateListener,
+  UnregisterListener,
   UpdatedDataListener,
-} from './IDBTypes.js'
-import type { IDBInterface } from './IDBInterface.js'
-import { checkStore, IDBError } from './utils/checkStore.js'
+} from './IDBTypes.js';
+import type { IDBInterface } from './IDBInterface.js';
+import { checkStore, IDBError } from './utils/checkStore.js';
 
 export class IDB implements IDBInterface {
   // Storage for listeners setted with `db.onDataUpdate` method
@@ -19,24 +26,19 @@ export class IDB implements IDBInterface {
   #openRequest!: IDBRequest;
   // Private readwrite prop behind public closedDueToVersionChange readonly prop
   #closedDueToVersionChange?: boolean;
-  
+
   public get closedDueToVersionChange() {
     return this.#closedDueToVersionChange;
   }
   public db!: IDBDatabase;
   /**
-  * Create database and return its wrapper
-  * @param name Database name
-  * @param version Database version
-  * @param objectStores Object stores that will create and update with database version change
-  * @param options Options for IDB object
-  */
-  constructor(...[
-    name,
-    version,
-    stores,
-    options = {},
-  ]: IDBArguments) {
+   * Create database and return its wrapper
+   * @param name Database name
+   * @param version Database version
+   * @param objectStores Object stores that will create and update with database version change
+   * @param options Options for IDB object
+   */
+  constructor(...[name, version, stores, options = {}]: IDBArguments) {
     this.#params = { name, version, stores };
     this.#options = options;
     this.#listeners = {};
@@ -50,8 +52,12 @@ export class IDB implements IDBInterface {
 
   #init(): void {
     this.#openRequest = indexedDB.open(this.#params.name, this.#params.version);
-    this.#openRequest.addEventListener('upgradeneeded', () => this.#upgradeneeded());
-    this.#openRequest.addEventListener('success', () => this.#success());
+    this.#openRequest.addEventListener('upgradeneeded', () => {
+      this.#upgradeneeded();
+    });
+    this.#openRequest.addEventListener('success', () => {
+      this.#success();
+    });
   }
 
   #upgradeneeded(): void {
@@ -66,12 +72,12 @@ export class IDB implements IDBInterface {
         this.db.createObjectStore(store.name, store.index);
       }
       actualStores[store.name] = true;
-    };
+    }
     for (let storeName of this.db.objectStoreNames) {
       if (!actualStores[storeName]) {
         this.db.deleteObjectStore(storeName);
       }
-    };
+    }
   }
 
   #success(): void {
@@ -96,7 +102,7 @@ export class IDB implements IDBInterface {
     mode: IDBTransactionMode,
     action: IDBAction,
     actionArgument?: any,
-    onSuccess?: Function,
+    onSuccess?: Function
   ): Promise<any> {
     await checkStore(this, methodName, store);
     const tx: IDBTransaction = this.db.transaction(store, mode);
@@ -128,25 +134,39 @@ export class IDB implements IDBInterface {
   }
 
   protected async _emitDataUpdateListeners<K>(
-    store: string, type: DataUpdateType, keys: K[], item?: any
+    store: string,
+    type: DataUpdateType,
+    keys: K[],
+    item?: any
   ): Promise<void> {
     if (!(store in this.#listeners)) return;
     for (let hash in this.#listeners[store]) {
       await this.#listeners[store][hash]({
-        store, type, keys, item
+        store,
+        type,
+        keys,
+        item,
       });
     }
   }
 
   public async set<T>(store: string, items: T): Promise<boolean>;
   public async set<T>(store: string, items: T[]): Promise<boolean[]>;
-  public async set<T>(store: string, items: T | T[]): Promise<boolean | boolean[]>;
   public async set<T>(
-    store: string, items: T | T[]
+    store: string,
+    items: T | T[]
+  ): Promise<boolean | boolean[]>;
+  public async set<T>(
+    store: string,
+    items: T | T[]
   ): Promise<boolean | boolean[]> {
     const updatedKeys: any[] = [];
     const resp: boolean[] = await this._dbCall(
-      'set', store, 'readwrite', 'put', items,
+      'set',
+      store,
+      'readwrite',
+      'put',
+      items,
       async (key: any) => {
         updatedKeys.push(key);
         return true; // TODO: If QuotaExceedError happened, catch it and return false;
@@ -156,14 +176,22 @@ export class IDB implements IDBInterface {
     return resp?.length == 1 ? resp[0] : resp;
   }
 
-  public async get<T, K>(store: string, keys: K): Promise<T | void>
-  public async get<T, K>(store: string, keys: K[]): Promise<(T | void)[]>
-  public async get<T, K>(store: string, keys: K | K[]): Promise<T | void | (T | void)[]>
+  public async get<T, K>(store: string, keys: K): Promise<T | void>;
+  public async get<T, K>(store: string, keys: K[]): Promise<(T | void)[]>;
   public async get<T, K>(
-    store: string, keys: K | K[]
+    store: string,
+    keys: K | K[]
+  ): Promise<T | void | (T | void)[]>;
+  public async get<T, K>(
+    store: string,
+    keys: K | K[]
   ): Promise<T | void | (T | void)[]> {
     const items: T[] = await this._dbCall(
-      'get', store, 'readonly', 'get', keys
+      'get',
+      store,
+      'readonly',
+      'get',
+      keys
     );
     if (Array.isArray(keys) && !Array.isArray(items)) {
       return [items];
@@ -172,14 +200,20 @@ export class IDB implements IDBInterface {
   }
 
   public async update<T, K>(
-    store: string, keys: K, updateCallbacks: UpdateCallback<T>
-  ): Promise<T>
+    store: string,
+    keys: K,
+    updateCallbacks: UpdateCallback<T>
+  ): Promise<T>;
   public async update<T, K>(
-    store: string, keys: K[], updateCallbacks: UpdateCallback<T> | UpdateCallback<T>[]
-  ): Promise<T[]>
+    store: string,
+    keys: K[],
+    updateCallbacks: UpdateCallback<T> | UpdateCallback<T>[]
+  ): Promise<T[]>;
   public async update<T, K>(
-    store: string, keys: K | K[], updateCallbacks: UpdateCallback<T> | UpdateCallback<T>[]
-  ): Promise<T | T[]>
+    store: string,
+    keys: K | K[],
+    updateCallbacks: UpdateCallback<T> | UpdateCallback<T>[]
+  ): Promise<T | T[]>;
 
   public async update<T, K>(
     store: string,
@@ -191,8 +225,8 @@ export class IDB implements IDBInterface {
     if (!Array.isArray(updateCallbacks)) updateCallbacks = [updateCallbacks];
     const base = IDBError('update', store);
     if (
-      updateCallbacks.length !== 1
-      && keys.length !== updateCallbacks.length
+      updateCallbacks.length !== 1 &&
+      keys.length !== updateCallbacks.length
     ) {
       throw new Error(
         `${base}UpdateCallbacks length should be the same as keys length or should be only one UpdateCallback`
@@ -209,7 +243,7 @@ export class IDB implements IDBInterface {
       } else {
         verifiedItems.push(item);
       }
-    })
+    });
     for (let i = 0; i < verifiedItems.length; i++) {
       await updateCallbacks[updateCallbacks.length == 1 ? 0 : i](
         verifiedItems[i]
@@ -220,11 +254,16 @@ export class IDB implements IDBInterface {
   }
 
   public async getAll<T>(
-    store: string, onData?: DataReceivingCallback<T>
+    store: string,
+    onData?: DataReceivingCallback<T>
   ): Promise<T[]> {
     let index = 0;
     let items: T[] = await this._dbCall(
-      'getAll', store, 'readonly', 'openCursor', null,
+      'getAll',
+      store,
+      'readonly',
+      'openCursor',
+      null,
       (result: IDBCursorWithValue): T | void => {
         if (!result) return;
         const value: T = result.value;
@@ -241,29 +280,33 @@ export class IDB implements IDBInterface {
   }
 
   public async delete<K>(store: string, keys: K | K[]): Promise<void> {
-    await this._dbCall(
-      'delete', store, 'readwrite', 'delete', keys
-    );
+    await this._dbCall('delete', store, 'readwrite', 'delete', keys);
     if (!Array.isArray(keys)) keys = [keys];
     this._emitDataUpdateListeners<K>(store, 'delete', keys);
   }
 
   public async deleteAll(store: string): Promise<void> {
-    await this._dbCall(
-      'deleteAll', store, 'readwrite', 'clear', null
-    );
+    await this._dbCall('deleteAll', store, 'readwrite', 'clear', null);
     this._emitDataUpdateListeners(store, 'deleteAll', []);
   }
 
-  public async has<K>(store: string, keys: K): Promise<boolean>
-  public async has<K>(store: string, keys: K[]): Promise<boolean[]>
-  public async has<K>(store: string, keys: K | K[]): Promise<boolean | boolean[]>
-  public async has(store: string): Promise<number>
+  public async has<K>(store: string, keys: K): Promise<boolean>;
+  public async has<K>(store: string, keys: K[]): Promise<boolean[]>;
   public async has<K>(
-    store: string, keys?: K | K[]
+    store: string,
+    keys: K | K[]
+  ): Promise<boolean | boolean[]>;
+  public async has(store: string): Promise<number>;
+  public async has<K>(
+    store: string,
+    keys?: K | K[]
   ): Promise<boolean | boolean[] | number> {
     let resp: (number | void)[] | number = await this._dbCall(
-      'has', store, 'readonly', 'count', keys
+      'has',
+      store,
+      'readonly',
+      'count',
+      keys
     );
     if (!keys) {
       return typeof resp == 'number' ? resp : 0;
@@ -278,7 +321,8 @@ export class IDB implements IDBInterface {
   }
 
   public async onDataUpdate<K>(
-    store: string, listener: DataUpdateListener<K>
+    store: string,
+    listener: DataUpdateListener<K>
   ): Promise<UnregisterListener> {
     await checkStore(this, 'onDataUpdate', store);
     if (!(store in this.#listeners)) {
@@ -295,19 +339,19 @@ export class IDB implements IDBInterface {
     store: string,
     keys: K,
     listener: UpdatedDataListener<T | void>
-  ): Promise<UnregisterListener>
+  ): Promise<UnregisterListener>;
 
   public async followDataUpdates<T, K>(
     store: string,
     keys: K[] | void,
     listener: UpdatedDataListener<(T | void)[]>
-  ): Promise<UnregisterListener>
+  ): Promise<UnregisterListener>;
 
   public async followDataUpdates<T>(
     store: string,
     keys: { getAll: true },
     listener: UpdatedDataListener<T[]>
-  ): Promise<UnregisterListener>
+  ): Promise<UnregisterListener>;
 
   public async followDataUpdates<T, K>(
     store: string,
@@ -315,27 +359,30 @@ export class IDB implements IDBInterface {
     listener: UpdatedDataListener<T | void | (T | void)[]>
   ): Promise<UnregisterListener> {
     await checkStore(this, 'followDataUpdates', store);
-    const unregister = await this.onDataUpdate<K>(store, async ({
-      type, keys: updatedKeys
-    }) => {
-      const getAll = !keys ||
-        (typeof keys === 'object' && !Array.isArray(keys) &&
-        (keys as { getAll?: true }).getAll === true);
-      if (type === 'deleteAll') {
-        return listener(getAll || Array.isArray(keys) ? [] : undefined);
-      }
-      if (getAll) {
-        const resp = await this.getAll<T>(store);
-        return listener(resp);
-      }
-      const keysArray: K[] = !Array.isArray(keys) ? [keys] : keys;
-      for (const key of keysArray) {
-        if (updatedKeys.includes(key)) {
-          const resp = await this.get<T, K>(store, keys);
+    const unregister = await this.onDataUpdate<K>(
+      store,
+      async ({ type, keys: updatedKeys }) => {
+        const getAll =
+          !keys ||
+          (typeof keys === 'object' &&
+            !Array.isArray(keys) &&
+            (keys as { getAll?: true }).getAll === true);
+        if (type === 'deleteAll') {
+          return listener(getAll || Array.isArray(keys) ? [] : undefined);
+        }
+        if (getAll) {
+          const resp = await this.getAll<T>(store);
           return listener(resp);
         }
+        const keysArray: K[] = !Array.isArray(keys) ? [keys] : keys;
+        for (const key of keysArray) {
+          if (updatedKeys.includes(key)) {
+            const resp = await this.get<T, K>(store, keys);
+            return listener(resp);
+          }
+        }
       }
-    });
+    );
     return unregister;
   }
-};
+}

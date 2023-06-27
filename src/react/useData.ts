@@ -16,32 +16,30 @@ import { useIDB } from './useIDB.js';
  * @example // Explicitly read all store items:
  * useData<ItemType>('store', { getAll: true })
  */
-export function useData<T, K>(
-  store: string,
-  keys: K,
-  initial?: T,
-): T | void
+export function useData<T, K>(store: string, keys: K, initial?: T): T | void;
 
 export function useData<T, K>(
   store: string,
   keys: K[] | void,
-  initial?: T[],
-): (T | void)[]
+  initial?: T[]
+): (T | void)[];
 
 export function useData<T>(
   store: string,
   keys: { getAll: true },
-  initial?: T[],
-): T[]
+  initial?: T[]
+): T[];
 
 export function useData<T, K>(
   store: string,
   keys: K | K[] | void,
-  initial?: T | T[] | null,
+  initial?: T | T[] | null
 ): T | void | (T | void)[] {
-  const getAll = !keys ||
-    (typeof keys === 'object' && !Array.isArray(keys) &&
-    (keys as { getAll?: true }).getAll === true);
+  const getAll =
+    !keys ||
+    (typeof keys === 'object' &&
+      !Array.isArray(keys) &&
+      (keys as { getAll?: true }).getAll === true);
   const db = useIDB();
   const [data, setter] = React.useState<T | void | (T | void)[]>(
     initial ?? (getAll || Array.isArray(keys) ? [] : undefined)
